@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
-import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/tab_bar_screen_holder.dart';
+import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/bottom_nav_bar_helper.dart';
+
 import 'package:vote_tracker/reusable_widgets/my_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -31,7 +32,7 @@ class WelcomeScreen extends StatelessWidget {
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const TabBarHolder(),
+                          builder: (context) => const BottomNavBarOfApp(),
                         ),
                         (route) => false, // Remove all previous routes
                       );

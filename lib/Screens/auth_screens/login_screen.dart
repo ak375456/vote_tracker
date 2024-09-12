@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:vote_tracker/Screens/Admin_Panel/admin_first_screen.dart';
 import 'package:vote_tracker/Screens/auth_screens/sign_up_screen.dart';
 import 'package:vote_tracker/Screens/candidate_screens/candidate_login.dart';
-import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/tab_bar_screen_holder.dart';
+import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/bottom_nav_bar_helper.dart';
 import 'package:vote_tracker/constants.dart';
 import 'package:vote_tracker/providers/password_provider.dart';
 import 'package:vote_tracker/reusable_widgets/my_button.dart';
@@ -190,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
             // ignore: use_build_context_synchronously
             context,
             MaterialPageRoute(
-              builder: (context) => const TabBarHolder(),
+              builder: (context) => const BottomNavBarOfApp(),
             ),
           );
         } else {
