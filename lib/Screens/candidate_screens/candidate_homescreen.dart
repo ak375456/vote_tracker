@@ -9,7 +9,7 @@ class CandidateHomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("Candidate home Screen"),
+        title: const Text("Candidate home Screen!"),
         actions: [
           IconButton(
             onPressed: () {
