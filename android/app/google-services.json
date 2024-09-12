@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "133582725260",
+    "project_id": "votetracker-ba993",
+    "storage_bucket": "votetracker-ba993.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:133582725260:android:92203f037aafb593c19ba9",
+        "android_client_info": {
+          "package_name": "com.example.vote_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAN9jAyoW--zA3mOTG6sSJCGnCUS7lkFh4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
