@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/home_screen.dart';
@@ -31,7 +33,7 @@ class _BottomNavBarOfAppState extends State<BottomNavBarOfApp> {
         .collection('Users')
         .doc(user!.uid) // Replace with actual user id
         .get();
-
+    log(user.uid);
     if (userDoc.exists) {
       setState(() {
         userDistrict = userDoc.data()?['district'];
@@ -41,6 +43,7 @@ class _BottomNavBarOfAppState extends State<BottomNavBarOfApp> {
 
   @override
   Widget build(BuildContext context) {
+    log(userDistrict.toString());
     if (userDistrict == null) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
