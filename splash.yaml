@@ -1,0 +1,10 @@
+flutter_native_splash:
+  android: true
+  ios: true
+
+  image: "assets/votify.png"
+  color: "#ffffff"
+
+  android_12:
+    color: "#ffffff"
+    image: "assets/votify_splash.png"

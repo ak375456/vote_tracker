@@ -1,152 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vote_tracker/Screens/auth_screens/login_screen.dart';
-import 'package:vote_tracker/constants.dart';
-import 'package:lottie/lottie.dart';
+import 'package:vote_tracker/reusable_widgets/my_button.dart';
 
-class BoardingScreen extends StatefulWidget {
+class BoardingScreen extends StatelessWidget {
   const BoardingScreen({super.key});
-
-  @override
-  State<BoardingScreen> createState() => _BoardingScreenState();
-}
-
-class _BoardingScreenState extends State<BoardingScreen> {
-  final PageController _pageController = PageController();
-
-  int _currentPage = 0;
-
-  final List<Widget> pages = [
-    const BoardingPage(
-      title: boardingTitle1,
-      description: boardingDescription1,
-      lottie: boardingLottie1,
-    ),
-    const BoardingPage(
-      title: boardingTitle2,
-      description: boardingDescription2,
-      lottie: boardingLottie2,
-    ),
-    const BoardingPage(
-      title: boardingTitle3,
-      description: boardingDescription3,
-      lottie: boardingLottie3,
-    ),
-  ];
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              itemCount: pages.length,
-              itemBuilder: (context, index) {
-                return pages[index];
-              },
-            ),
-          ),
-          _buildDotIndicator(),
-        ],
-      ),
-      floatingActionButton: _currentPage == pages.length - 1
-          ? FloatingActionButton(
-              backgroundColor: const Color(0xff006600),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ),
-                );
-              },
-              child: const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white,
-              ),
-            )
-          : const SizedBox.shrink(),
-    );
-  }
-
-  Widget _buildDotIndicator() {
-    return Padding(
-      padding: REdgeInsets.only(bottom: 18),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(
-          pages.length,
-          (index) => Container(
-            width: 10,
-            height: 10,
-            margin: REdgeInsets.symmetric(horizontal: 5),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color:
-                  index == _currentPage ? const Color(0xff006600) : Colors.grey,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class BoardingPage extends StatelessWidget {
-  final String title;
-  final String description;
-  final String lottie;
-
-  const BoardingPage({
-    super.key,
-    required this.title,
-    required this.description,
-    required this.lottie,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: REdgeInsets.symmetric(horizontal: 20.0),
-      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          const Row(),
           SizedBox(
-            height: ScreenUtil().setHeight(200),
-            width: ScreenUtil().setWidth(200),
-            child: Lottie.asset(lottie, animate: true, fit: BoxFit.contain),
+            height: 268.h,
+            width: 268.h,
+            child: Image.asset("assets/boardingPageImage.png"),
           ),
-          SizedBox(height: ScreenUtil().setHeight(30)),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 24.0.sp,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
+          SizedBox(
+            height: 59.h,
           ),
-          SizedBox(height: ScreenUtil().setHeight(30)),
-          Text(
-            description,
+          const Text(
+            "Welcome to Votify!",
             style: TextStyle(
-              fontSize: ScreenUtil().setSp(16),
-              color: Colors.grey,
+              fontSize: 24,
+              fontWeight: FontWeight.w400,
             ),
-            textAlign: TextAlign.center,
+          ),
+          SizedBox(
+            height: 30.h,
+          ),
+          Padding(
+            padding: REdgeInsets.symmetric(horizontal: 39.0),
+            child: const Text(
+              "Vote, create and manage elections with real-time results",
+              style: TextStyle(
+                fontSize: 20,
+                color: Color(0x58585880),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          SizedBox(
+            height: 59.h,
+          ),
+          MyButton(
+            buttonText: "Get Started",
+            buttonFunction: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),

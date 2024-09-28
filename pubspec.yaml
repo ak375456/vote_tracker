@@ -51,6 +51,7 @@ dependencies:
   font_awesome_flutter: ^10.7.0
   syncfusion_flutter_charts: ^26.1.35
   fl_chart: ^0.68.0
+  flutter_native_splash: ^2.4.1
 
 dev_dependencies:
   flutter_test:
