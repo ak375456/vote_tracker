@@ -10,7 +10,6 @@ import 'package:vote_tracker/constants.dart';
 import 'package:vote_tracker/providers/password_provider.dart';
 import 'package:vote_tracker/reusable_widgets/my_button.dart';
 import 'package:vote_tracker/reusable_widgets/my_form.dart';
-import 'package:vote_tracker/reusable_widgets/two_circles.dart';
 import 'package:vote_tracker/services/auth_services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -45,72 +44,122 @@ class _LoginScreenState extends State<LoginScreen> {
     final passwordProvider = Provider.of<ShowPassword>(context, listen: true);
     // final authService = Provider.of<AuthServices>(context, listen: false);
     return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          const TwoCircles(),
-          Padding(
-            padding: REdgeInsets.symmetric(horizontal: 16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+      body: Padding(
+        padding: REdgeInsets.symmetric(horizontal: 16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset("assets/votify.png"),
+              SizedBox(
+                height: 45.h,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Image.asset(logoImage),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        loginText.toUpperCase(),
-                        style: TextStyle(
-                            fontSize: 16.sp,
-                            letterSpacing: 1.5,
-                            fontWeight: FontWeight.w500),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        InkWell(
+                          onTap: () {},
+                          child: Text(
+                            "Sign In (Voter)",
+                            style: TextStyle(
+                                fontSize: 20.sp,
+                                letterSpacing: 0.0,
+                                fontWeight: FontWeight.w400),
+                          ),
+                        ),
+                        const Divider(
+                          thickness: 5,
+                          color: Colors.black,
+                        ),
+                      ],
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CandidateLoginScreen(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      "Sign In (Candidate)",
+                      style: TextStyle(
+                        fontSize: 20.sp,
+                        letterSpacing: 0.0,
+                        fontWeight: FontWeight.w400,
                       ),
-                    ],
+                    ),
                   ),
-                  MyTextFormField(
-                    controller: emailController,
-                    labelText: email,
-                    hintText: emailHelperText,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
-                          .hasMatch(value)) {
-                        return 'Please enter a valid email address';
-                      }
+                ],
+              ),
+              MyTextFormField(
+                controller: emailController,
+                labelText: email,
+                hintText: emailHelperText,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
+                      .hasMatch(value)) {
+                    return 'Please enter a valid email address';
+                  }
 
-                      return null;
+                  return null;
+                },
+              ),
+              MyTextFormField(
+                controller: passwordController,
+                labelText: password,
+                hintText: passwordHelperText,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  if (value.length < 5) {
+                    return 'Password should be greater than 5 character';
+                  }
+                  return null;
+                },
+                suffixIcon: passwordProvider.isObsecureText
+                    ? Icons.lock
+                    : Icons.lock_open_outlined,
+                onSuffixIconPressed: () {
+                  passwordProvider
+                      .showPassword(!passwordProvider.isObsecureText);
+                },
+                hideText: passwordProvider.isObsecureText,
+              ),
+              SizedBox(
+                height: ScreenUtil().setHeight(48),
+              ),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SignUp(),
+                          ));
                     },
-                    prefixIcon: Icons.email,
-                  ),
-                  MyTextFormField(
-                    controller: passwordController,
-                    labelText: password,
-                    hintText: passwordHelperText,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (value.length < 5) {
-                        return 'Password should be greater than 5 character';
-                      }
-                      return null;
-                    },
-                    prefixIcon: Icons.password_outlined,
-                    suffixIcon: passwordProvider.isObsecureText
-                        ? Icons.lock
-                        : Icons.lock_open_outlined,
-                    onSuffixIconPressed: () {
-                      passwordProvider
-                          .showPassword(!passwordProvider.isObsecureText);
-                    },
-                    hideText: passwordProvider.isObsecureText,
+                    child: Text(
+                      "Don't have an account ?",
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: const Color(0x58585880),
+                      ),
+                    ),
                   ),
                   SizedBox(
-                    height: ScreenUtil().setHeight(48),
+                    width: 30.w,
                   ),
                   isLoading
                       ? Center(
@@ -120,50 +169,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         )
                       : MyButton(
-                          buttonText: signUp, buttonFunction: logInFunction),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CandidateLoginScreen(),
+                          buttonText: "Sign In",
+                          buttonFunction: logInFunction,
                         ),
-                      );
-                    },
-                    child: Text(
-                      "Login as an candidate",
-                      style: TextStyle(
-                        color: darkGreenColor,
-                      ),
-                    ),
-                  ),
                 ],
               ),
-            ),
+            ],
           ),
-          Padding(
-            padding: REdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SignUp(),
-                    ),
-                  );
-                },
-                child: Text(
-                  dontHaveAnAccount,
-                  style: TextStyle(
-                    color: darkGreenColor,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

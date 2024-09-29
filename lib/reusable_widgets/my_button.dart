@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vote_tracker/constants.dart';
 
 // ignore: must_be_immutable
 class MyButton extends StatelessWidget {
@@ -14,7 +13,7 @@ class MyButton extends StatelessWidget {
       onPressed: buttonFunction,
       style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: Color(0xff2D8BBA),
+          backgroundColor: const Color(0xff2D8BBA),
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(8)))),
       child: Text(

@@ -85,51 +85,53 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      keyboardType: widget.textInputType,
-      readOnly: widget.readOnly,
-      onChanged: widget.onChanged,
-      obscureText: widget.hideText,
-      controller: _controller,
-      validator: widget.validator,
-      decoration: InputDecoration(
-        suffixText: widget.suffixText,
-        prefixText: widget.prefixText,
-        hintText: widget.hintText,
-        hintStyle: const TextStyle(color: Colors.grey),
-        prefixIcon: Icon(
-          widget.prefixIcon,
-          color: isFocused
-              ? darkGreenColor
-              : (widget.hasError ? Colors.red : darkGreenColor),
-        ),
-        suffixIcon: widget.suffixIcon != null
-            ? GestureDetector(
-                onTap: widget.onSuffixIconPressed,
-                child: Icon(
-                  widget.suffixIcon,
-                  color: isFocused
-                      ? darkGreenColor
-                      : (widget.hasError ? Colors.red : null),
-                ),
-              )
-            : null,
-        labelText: widget.labelText,
-        labelStyle: TextStyle(
-          color: isFocused
-              ? darkGreenColor
-              : (widget.hasError ? Colors.red : null),
-        ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: darkGreenColor,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: TextFormField(
+        keyboardType: widget.textInputType,
+        readOnly: widget.readOnly,
+        onChanged: widget.onChanged,
+        obscureText: widget.hideText,
+        controller: _controller,
+        validator: widget.validator,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(
+              15,
+            ),
+          ),
+          suffixText: widget.suffixText,
+          prefixText: widget.prefixText,
+          hintText: widget.hintText,
+          hintStyle: const TextStyle(color: Colors.grey),
+          suffixIcon: widget.suffixIcon != null
+              ? GestureDetector(
+                  onTap: widget.onSuffixIconPressed,
+                  child: Icon(
+                    widget.suffixIcon,
+                    color: isFocused
+                        ? darkGreenColor
+                        : (widget.hasError ? Colors.red : null),
+                  ),
+                )
+              : null,
+          labelText: widget.labelText,
+          labelStyle: TextStyle(
+            color: isFocused
+                ? const Color(0xff2D8BBA)
+                : (widget.hasError ? Colors.red : null),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: darkGreenColor,
+            ),
+          ),
+          errorStyle: const TextStyle(
+            color: Colors.red,
           ),
         ),
-        errorStyle: const TextStyle(
-          color: Colors.red,
-        ),
+        focusNode: _focusNode,
       ),
-      focusNode: _focusNode,
     );
   }
 }

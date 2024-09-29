@@ -41,107 +41,119 @@ class _CandidateLoginScreenState extends State<CandidateLoginScreen> {
   Widget build(BuildContext context) {
     final passwordProvider = Provider.of<ShowPassword>(context, listen: false);
     return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          const TwoCircles(),
-          Padding(
-            padding: REdgeInsets.symmetric(horizontal: 16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+      body: Padding(
+        padding: REdgeInsets.symmetric(horizontal: 16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset("assets/votify.png"),
+              SizedBox(
+                height: 45.h,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Image.asset(logoImage),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        "${loginText.toUpperCase()} as candidate".toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          letterSpacing: 1.5,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  MyTextFormField(
-                    controller: emailController,
-                    labelText: email,
-                    hintText: emailHelperText,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
-                          .hasMatch(value)) {
-                        return 'Please enter a valid email address';
-                      }
-
-                      return null;
-                    },
-                    prefixIcon: Icons.email,
-                  ),
-                  MyTextFormField(
-                    controller: passwordController,
-                    labelText: password,
-                    hintText: passwordHelperText,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (value.length < 5) {
-                        return 'Password should be greater than 5 character';
-                      }
-                      return null;
-                    },
-                    prefixIcon: Icons.password_outlined,
-                    suffixIcon: passwordProvider.isObsecureText
-                        ? Icons.lock
-                        : Icons.lock_open_outlined,
-                    onSuffixIconPressed: () {
-                      passwordProvider
-                          .showPassword(!passwordProvider.isObsecureText);
-                    },
-                    hideText: passwordProvider.isObsecureText,
-                  ),
-                  SizedBox(
-                    height: ScreenUtil().setHeight(48),
-                  ),
-                  isLoading
-                      ? Center(
-                          child: SpinKitCircle(
-                            // Using a CircularProgressIndicator for loading indication
-                            color: darkGreenColor,
+                  Expanded(
+                    child: Column(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            "Sign In (Voter)",
+                            style: TextStyle(
+                                fontSize: 20.sp,
+                                letterSpacing: 0.0,
+                                fontWeight: FontWeight.w400),
                           ),
-                        )
-                      : MyButton(
-                          buttonText: signUp,
-                          buttonFunction: logInFunction,
                         ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        InkWell(
+                          onTap: () {},
+                          child: Text(
+                            "Sign In (Candidate)",
+                            style: TextStyle(
+                              fontSize: 20.sp,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                        const Divider(
+                          thickness: 5,
+                          color: Colors.black,
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ),
-          Padding(
-            padding: REdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
+              MyTextFormField(
+                controller: emailController,
+                labelText: email,
+                hintText: emailHelperText,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
+                      .hasMatch(value)) {
+                    return 'Please enter a valid email address';
+                  }
+
+                  return null;
                 },
-                child: Text(
-                  "Login as a voter",
-                  style: TextStyle(
-                    color: darkGreenColor,
-                  ),
-                ),
+                prefixIcon: Icons.email,
               ),
-            ),
+              MyTextFormField(
+                controller: passwordController,
+                labelText: password,
+                hintText: passwordHelperText,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  if (value.length < 5) {
+                    return 'Password should be greater than 5 character';
+                  }
+                  return null;
+                },
+                prefixIcon: Icons.password_outlined,
+                suffixIcon: passwordProvider.isObsecureText
+                    ? Icons.lock
+                    : Icons.lock_open_outlined,
+                onSuffixIconPressed: () {
+                  passwordProvider
+                      .showPassword(!passwordProvider.isObsecureText);
+                },
+                hideText: passwordProvider.isObsecureText,
+              ),
+              SizedBox(
+                height: ScreenUtil().setHeight(48),
+              ),
+              isLoading
+                  ? Center(
+                      child: SpinKitCircle(
+                        // Using a CircularProgressIndicator for loading indication
+                        color: darkGreenColor,
+                      ),
+                    )
+                  : MyButton(
+                      buttonText: "Sign In",
+                      buttonFunction: logInFunction,
+                    ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

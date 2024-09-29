@@ -47,121 +47,105 @@ class _SignUpState extends State<SignUp> {
     final passwordProvider = Provider.of<ShowPassword>(context, listen: true);
     bool confirmPasswordHideIfPasswordHide = passwordProvider.isObsecureText;
     return Scaffold(
-      appBar: AppBar(
-        // backgroundColor: Colors.black,
-        // leadingWidth: 80.w,
-        automaticallyImplyLeading: false,
-        leading: Padding(
-          padding: REdgeInsets.only(left: 16.0),
-          child: Image.asset(
-            logoImage,
-            fit: BoxFit.contain,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              signIn,
-              style: TextStyle(
-                color: darkGreenColor,
-                decoration: TextDecoration.underline,
-                decorationColor: darkGreenColor,
-                fontSize: 18.sp,
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: <Widget>[
-          const TwoCircles(),
-          Padding(
-            padding: REdgeInsets.symmetric(horizontal: 16.0),
-            child: Form(
-              key: _formKey,
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+      body: Padding(
+        padding: REdgeInsets.symmetric(horizontal: 16.0),
+        child: Form(
+          key: _formKey,
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset("assets/votify.png"),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            createNewAccount.toUpperCase(),
-                            style: TextStyle(
-                                fontSize: 16.sp,
-                                letterSpacing: 1.5,
-                                fontWeight: FontWeight.w500),
-                          ),
-                        ],
+                      Text(
+                        createNewAccount.toUpperCase(),
+                        style: TextStyle(
+                            fontSize: 16.sp,
+                            letterSpacing: 1.5,
+                            fontWeight: FontWeight.w500),
                       ),
-                      SizedBox(
-                        height: ScreenUtil().setHeight(18),
-                      ),
-                      MyTextFormField(
-                        controller: emailController,
-                        hintText: emailHelperText,
-                        labelText: email,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
-                              .hasMatch(value)) {
-                            return 'Please enter a valid email address';
-                          }
-                          return null;
-                        },
-                        prefixIcon: Icons.email,
-                      ),
-                      MyTextFormField(
-                        controller: passwordController,
-                        labelText: password,
-                        hintText: passwordHelperText,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          if (value.length < 5) {
-                            return 'Password should be greater than 5 character';
-                          }
-                          return null;
-                        },
-                        prefixIcon: Icons.password_outlined,
-                        suffixIcon: passwordProvider.isObsecureText
-                            ? Icons.lock
-                            : Icons.lock_open_outlined,
-                        onSuffixIconPressed: () {
-                          passwordProvider
-                              .showPassword(!passwordProvider.isObsecureText);
-                        },
-                        hideText: passwordProvider.isObsecureText,
-                      ),
-                      MyTextFormField(
-                        labelText: "Confirm password",
-                        prefixIcon: Icons.password,
-                        hideText: confirmPasswordHideIfPasswordHide,
-                        validator: (String? value) {
-                          if (confirmPasswordController.text.isEmpty) {
-                            return 'Please confirm your password';
-                          }
+                    ],
+                  ),
+                  SizedBox(
+                    height: ScreenUtil().setHeight(18),
+                  ),
+                  MyTextFormField(
+                    controller: emailController,
+                    hintText: emailHelperText,
+                    labelText: email,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
+                          .hasMatch(value)) {
+                        return 'Please enter a valid email address';
+                      }
+                      return null;
+                    },
+                    prefixIcon: Icons.email,
+                  ),
+                  MyTextFormField(
+                    controller: passwordController,
+                    labelText: password,
+                    hintText: passwordHelperText,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 5) {
+                        return 'Password should be greater than 5 character';
+                      }
+                      return null;
+                    },
+                    prefixIcon: Icons.password_outlined,
+                    suffixIcon: passwordProvider.isObsecureText
+                        ? Icons.lock
+                        : Icons.lock_open_outlined,
+                    onSuffixIconPressed: () {
+                      passwordProvider
+                          .showPassword(!passwordProvider.isObsecureText);
+                    },
+                    hideText: passwordProvider.isObsecureText,
+                  ),
+                  MyTextFormField(
+                    labelText: "Confirm password",
+                    prefixIcon: Icons.password,
+                    hideText: confirmPasswordHideIfPasswordHide,
+                    validator: (String? value) {
+                      if (confirmPasswordController.text.isEmpty) {
+                        return 'Please confirm your password';
+                      }
 
-                          if (confirmPasswordController.text !=
-                              passwordController.text) {
-                            confirmPasswordController.clear();
-                            return 'Passwords do not match';
-                          }
-                          return null;
+                      if (confirmPasswordController.text !=
+                          passwordController.text) {
+                        confirmPasswordController.clear();
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
+                    controller: confirmPasswordController,
+                  ),
+                  SizedBox(
+                    height: ScreenUtil().setHeight(48),
+                  ),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
                         },
-                        controller: confirmPasswordController,
-                      ),
-                      SizedBox(
-                        height: ScreenUtil().setHeight(48),
+                        child: Text(
+                          "Already have an account?",
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: const Color(0x58585880),
+                          ),
+                        ),
                       ),
                       isLoading
                           ? Center(
@@ -175,11 +159,11 @@ class _SignUpState extends State<SignUp> {
                               buttonFunction: singUpFunction),
                     ],
                   ),
-                ),
+                ],
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

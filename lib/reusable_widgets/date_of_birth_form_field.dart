@@ -61,9 +61,14 @@ class _DateOfBirthFormFieldState extends State<DateOfBirthFormField> {
 
         return widget.validator(selectedDate);
       },
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(
+            15,
+          ),
+        ),
         labelText: 'Date of Birth',
-        prefixIcon: Icon(Icons.calendar_today),
+        prefixIcon: const Icon(Icons.calendar_today),
         focusColor: Colors.blue,
       ),
     );
