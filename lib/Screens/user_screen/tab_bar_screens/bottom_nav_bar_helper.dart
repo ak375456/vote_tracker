@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vote_tracker/Screens/user_screen/mna_mpa_tab_bar_holder/mna_mpa_tab_bar_holder.dart';
 import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/home_screen.dart';
 import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/result_screen.dart';
 import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/voting_screen.dart';
@@ -52,7 +53,7 @@ class _BottomNavBarOfAppState extends State<BottomNavBarOfApp> {
 
     final List<Widget> screens = [
       const HomeScreen(),
-      VotingScreen(userDistrict: userDistrict!),
+      MNAMPATabBarHolder(userDistrict: userDistrict!),
       const ResultScreen(),
     ];
 

@@ -124,7 +124,7 @@ class _AdditionalInformationScreenState
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 30,
                   ),
                   MyTextFormField(

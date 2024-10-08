@@ -159,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   SizedBox(
-                    width: 30.w,
+                    width: 10.w,
                   ),
                   isLoading
                       ? Center(
