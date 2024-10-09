@@ -91,8 +91,7 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
     }
   }
 
-  Future<void> _voteForCandidate(
-      String candidateId, String candidateRole) async {
+  Future<void> _voteForMPACandidate(String candidateId) async {
     final user = _auth.currentUser;
     if (user == null) {
       log('User not logged in');
@@ -104,49 +103,54 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
     });
 
     try {
+      // Check if the user has already voted for an MPA candidate
       final voteSnapshot = await _firestore
           .collection('votes')
           .where('voterId', isEqualTo: user.uid)
           .where('electionId', isEqualTo: _electionId)
-          .where('candidateRole', isEqualTo: candidateRole)
+          .where('candidateRole', isEqualTo: 'Minister Of Provincial Assembly')
           .get();
 
       if (voteSnapshot.docs.isNotEmpty) {
         Fluttertoast.showToast(
-            msg:
-                'User has already voted for a candidate in this assembly type');
+            msg: 'You have already voted for an MPA candidate.');
         return;
       }
 
+      // Reference the candidate document
       final candidateRef = _firestore.collection('Candidates').doc(candidateId);
+
       await _firestore.runTransaction((transaction) async {
+        // Get the candidate's current vote count
         final candidateSnapshot = await transaction.get(candidateRef);
         if (!candidateSnapshot.exists) {
           throw Exception('Candidate does not exist!');
         }
 
+        // Increment the vote count
         final newVoteCount = (candidateSnapshot.data()?['totalVotes'] ?? 0) + 1;
         transaction.update(candidateRef, {'totalVotes': newVoteCount});
       });
 
-      final voteRef = _firestore.collection('votes').doc();
-      await voteRef.set({
+      // Record the vote in the 'votes' collection
+      await _firestore.collection('votes').add({
         'voterId': user.uid,
-        'electionId': _electionId, // Ensure electionId is stored
+        'electionId': _electionId,
         'candidateId': candidateId,
-        'candidateRole': candidateRole,
+        'candidateRole': 'Minister Of Provincial Assembly',
         'timestamp': FieldValue.serverTimestamp(),
       });
 
+      // Update the state and refresh the UI
       setState(() {
         _userVotes.add(candidateId);
         _candidatesFuture = _fetchCandidates(); // Refresh candidates list
       });
 
       Fluttertoast.showToast(
-          msg: 'Vote recorded successfully for candidate: $candidateId');
+          msg: 'Vote recorded successfully for MPA candidate: $candidateId');
     } catch (e) {
-      log('Error voting for candidate: $e');
+      log('Error voting for MPA candidate: $e');
     } finally {
       setState(() {
         _isLoading = false;
@@ -201,7 +205,7 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
                     onRefresh: _refreshData,
                     child: ListView(
                       children: candidates
-                          .map((candidate) => _buildCandidateCard(candidate))
+                          .map((candidate) => _buildMPACandidateCard(candidate))
                           .toList(),
                     ),
                   );
@@ -221,46 +225,201 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
     );
   }
 
-  Widget _buildCandidateCard(Map<String, dynamic> candidate) {
+  Widget _buildMPACandidateCard(Map<String, dynamic> candidate) {
     final isFromUserDistrict = candidate['district'] == widget.userDistrict;
     final partyFlagPath = partyFlags[candidate['party']] ?? '';
-    log("flag path:$partyFlagPath");
 
-    return Card(
-      margin: REdgeInsets.all(8.0),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundImage: NetworkImage(candidate['image']),
+    return Container(
+      margin: REdgeInsets.symmetric(vertical: 18),
+      padding: REdgeInsets.only(bottom: 11),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          width: 1.w,
+          color: const Color.fromARGB(120, 0, 0, 0),
         ),
-        title: Text(candidate['fullName']),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Party: ${candidate['party']}'),
-            if (partyFlagPath.isNotEmpty)
-              Image.asset(
-                partyFlagPath,
-                height: 50.h,
-                width: 50.w,
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: REdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color.fromARGB(159, 0, 0, 0),
+                      offset: Offset(0, 1),
+                      blurRadius: 1,
+                    ),
+                  ],
+                  color: const Color.fromARGB(255, 192, 192, 192),
+                ),
+                child: Text(
+                  candidate['party'],
+                ),
               ),
-            Text('Role: ${candidate['candidateRole']}'),
-            Text('Province: ${candidate['province']}'),
-            Text('District: ${candidate['district']}'),
-            Text('Votes: ${candidate['totalVotes']}'),
-          ],
-        ),
-        trailing: isFromUserDistrict
-            ? _userVotes.contains(candidate['uid'])
-                ? const Icon(Icons.check, color: Colors.green)
-                : ElevatedButton(
-                    onPressed: () => _voteForCandidate(
-                        candidate['uid'], candidate['candidateRole']),
-                    child: const Text('Vote'),
-                  )
-            : null,
+              Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Image.asset(partyFlagPath),
+              )
+            ],
+          ),
+          SizedBox(
+            height: 10.h,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 18.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      maxRadius: 40,
+                      backgroundImage: NetworkImage(
+                        candidate['image'],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 5.h,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          candidate['fullName'],
+                          style: TextStyle(
+                              fontSize: 18.sp, fontWeight: FontWeight.w400),
+                        ),
+                        Text(
+                          candidate['fullAddress'].toString().substring(0,
+                              candidate['fullAddress'].toString().length - 9),
+                          style: TextStyle(
+                              fontSize: 12.sp, color: Color(0xff585858)),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 15.h),
+          Padding(
+            padding: REdgeInsets.only(left: 18.0),
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  maxRadius: 40,
+                  backgroundColor: Colors.red,
+                ),
+                SizedBox(
+                  width: 16.w,
+                ),
+                Container(
+                  height: 80,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 1),
+                    borderRadius: BorderRadius.circular(90),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      "MPA", // Change for MPA logic
+                      style:
+                          TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 16.w,
+                ),
+                Container(
+                  height: 80,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 1),
+                    borderRadius: BorderRadius.circular(90),
+                  ),
+                  child: Center(
+                    child: Text(
+                      extractTextInBrackets(candidate['party']),
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 16.w,
+                ),
+                Padding(
+                  padding: REdgeInsets.only(left: 22),
+                  child: Expanded(
+                    child: Row(
+                      children: [
+                        Column(
+                          children: [
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Image.asset(
+                                  _userVotes.contains(candidate['uid'])
+                                      ? 'assets/voteIcons/VotedCircle.png'
+                                      : 'assets/voteIcons/NotVotedCircle.png',
+                                ),
+                                GestureDetector(
+                                  onTap: !_userVotes.contains(candidate['uid'])
+                                      ? () => _voteForMPACandidate(
+                                          candidate['uid']) // MPA logic here
+                                      : null,
+                                  child: Image.asset(
+                                    _userVotes.contains(candidate['uid'])
+                                        ? 'assets/voteIcons/VotedIcon.png'
+                                        : 'assets/voteIcons/NotVotedIcon.png',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 3.h,
+                            ),
+                            GestureDetector(
+                              onTap: !_userVotes.contains(candidate['uid'])
+                                  ? () => _voteForMPACandidate(
+                                      candidate['uid']) // MPA voting logic
+                                  : null,
+                              child: Image.asset(
+                                _userVotes.contains(candidate['uid'])
+                                    ? 'assets/voteIcons/voted.png'
+                                    : 'assets/voteIcons/Vote.png',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
+}
+
+String extractTextInBrackets(String text) {
+  final RegExp regex = RegExp(r'\(([^)]+)\)');
+  final match = regex.firstMatch(text);
+  return match != null ? match.group(1) ?? '' : '';
 }
 
 const Map<String, String> partyFlags = {
