@@ -236,56 +236,55 @@ class _MnaVoteScreenState extends State<MnaVoteScreen> {
           SizedBox(height: 15.h),
           Padding(
             padding: REdgeInsets.only(left: 18.0),
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  maxRadius: 40,
-                  backgroundColor: Colors.red,
-                ),
-                SizedBox(
-                  width: 16.w,
-                ),
-                Container(
-                  height: 80,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    border: Border.all(width: 1),
-                    borderRadius: BorderRadius.circular(90),
+            child: Container(
+              child: Row(
+                children: [
+                  const CircleAvatar(
+                    maxRadius: 40,
+                    backgroundColor: Colors.red,
                   ),
-                  child: const Center(
-                    child: Text(
-                      "MNA",
-                      style:
-                          TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  SizedBox(
+                    width: 16.w,
+                  ),
+                  Container(
+                    height: 80,
+                    width: 80,
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 1),
+                      borderRadius: BorderRadius.circular(90),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "MNA",
+                        style: TextStyle(
+                            fontSize: 25, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: 16.w,
-                ),
-                Container(
-                  height: 80,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    border: Border.all(width: 1),
-                    borderRadius: BorderRadius.circular(90),
+                  SizedBox(
+                    width: 16.w,
                   ),
-                  child: Center(
-                    child: Text(
-                      extractTextInBrackets(candidate['party']),
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
+                  Container(
+                    height: 80,
+                    width: 80,
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 1),
+                      borderRadius: BorderRadius.circular(90),
+                    ),
+                    child: Center(
+                      child: Text(
+                        extractTextInBrackets(candidate['party']),
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: 16.w,
-                ),
-                Padding(
-                  padding: REdgeInsets.only(left: 22),
-                  child: Expanded(
+                  SizedBox(
+                    width: 16.w,
+                  ),
+                  Padding(
+                    padding: REdgeInsets.only(left: 22),
                     child: Row(
-                      // mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Column(
                           children: [
@@ -328,8 +327,8 @@ class _MnaVoteScreenState extends State<MnaVoteScreen> {
                       ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           )
         ],
@@ -347,6 +346,7 @@ class _MnaVoteScreenState extends State<MnaVoteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
+        //useless stack
         children: [
           FutureBuilder<List<Map<String, dynamic>>>(
             future: _candidatesFuture,
