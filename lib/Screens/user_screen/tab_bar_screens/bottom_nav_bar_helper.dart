@@ -54,7 +54,9 @@ class _BottomNavBarOfAppState extends State<BottomNavBarOfApp> {
     final List<Widget> screens = [
       const HomeScreen(),
       MNAMPATabBarHolder(userDistrict: userDistrict!),
-      const ResultScreen(),
+      ResultScreen(
+        userDistrict: userDistrict!,
+      ),
     ];
 
     return WillPopScope(

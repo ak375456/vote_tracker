@@ -1,136 +1,132 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ResultScreen extends StatefulWidget {
-  const ResultScreen({super.key});
+  final String userDistrict; // User's district passed here
+
+  const ResultScreen({super.key, required this.userDistrict});
 
   @override
   State<ResultScreen> createState() => _ResultScreenState();
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  Future<Map<String, dynamic>> _fetchVotesData() async {
-    final votesSnapshot =
-        await FirebaseFirestore.instance.collection('votes').get();
+  String _searchQuery = '';
 
-    return Map.fromEntries(votesSnapshot.docs.map(
-      (doc) => MapEntry(doc.id, doc.data()),
-    ));
-  }
+  // Fetch votes based on the candidate role (MNA/MPA) and district
+  Future<Map<String, int>> _fetchVotes(String candidateRole) async {
+    try {
+      final votesSnapshot = await FirebaseFirestore.instance
+          .collection('votes')
+          .where('candidateRole', isEqualTo: candidateRole)
+          .get();
 
-  Future<Map<String, dynamic>> _fetchCandidatesData() async {
-    final candidatesSnapshot =
-        await FirebaseFirestore.instance.collection('Candidates').get();
+      final voteCount = <String, int>{};
 
-    return Map.fromEntries(candidatesSnapshot.docs.map(
-      (doc) => MapEntry(doc.id, doc.data()),
-    ));
+      for (var doc in votesSnapshot.docs) {
+        final candidateId = doc['candidateId'];
+        final candidateSnapshot = await FirebaseFirestore.instance
+            .collection('Candidates')
+            .doc(candidateId)
+            .get();
+
+        if (candidateSnapshot.exists &&
+            candidateSnapshot['district'].toString().toLowerCase() ==
+                widget.userDistrict.toLowerCase()) {
+          final party = candidateSnapshot['party'];
+          voteCount[party] = (voteCount[party] ?? 0) + 1;
+        }
+      }
+      return voteCount;
+    } catch (e) {
+      print('Error fetching $candidateRole votes: $e');
+      return {};
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Election Results')),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _fetchVotesData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error fetching votes data'));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No votes data found'));
-          }
-
-          final votesData = snapshot.data!;
-
-          return FutureBuilder<Map<String, dynamic>>(
-            future: _fetchCandidatesData(),
-            builder: (context, candidateSnapshot) {
-              if (candidateSnapshot.connectionState ==
-                  ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (candidateSnapshot.hasError) {
-                return const Center(child: Text('Error fetching candidates'));
-              }
-              if (!candidateSnapshot.hasData ||
-                  candidateSnapshot.data!.isEmpty) {
-                return const Center(child: Text('No candidates data found'));
-              }
-
-              final candidatesData = candidateSnapshot.data!;
-              final districtResults = <String, Map<String, Map<String, int>>>{};
-
-              // Aggregate votes by district and seat type
-              votesData.forEach((voteId, vote) {
-                final candidateId = vote['candidateId'];
-                final candidate = candidatesData[candidateId];
-                final district = candidate['district'];
-                final party = candidate['party'];
-                final seatType = vote['candidateRole']; // 'MNA' or 'MPA'
-
-                // Initialize if district is not in map
-                districtResults[district] ??= {
-                  'Minister Of National Assembly': <String, int>{},
-                  'Minister Of Province Assembly': <String, int>{},
-                };
-
-                // Add votes for the seat type (MNA or MPA)
-                if (seatType == 'Minister Of National Assembly') {
-                  districtResults[district]!['Minister Of National Assembly']![
-                      party] = (districtResults[district]![
-                              'Minister Of National Assembly']![party] ??
-                          0) +
-                      1;
-                } else {
-                  districtResults[district]!['Minister Of Province Assembly']![
-                      party] = (districtResults[district]![
-                              'Minister Of Province Assembly']![party] ??
-                          0) +
-                      1;
-                }
-              });
-
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListView.builder(
-                  itemCount: districtResults.keys.length,
-                  itemBuilder: (context, index) {
-                    final district = districtResults.keys.elementAt(index);
-                    final mnaVotes = districtResults[district]![
-                        'Minister Of National Assembly']!;
-                    final mpaVotes = districtResults[district]![
-                        'Minister Of Province Assembly']!;
-
-                    return Column(
-                      children: [
-                        ExpansionTile(
-                          title: Text('District: $district'),
-                          children: [
-                            _buildPieChart(
-                                'Party Votes for MNA in $district', mnaVotes),
-                            const Divider(),
-                            _buildPieChart(
-                                'Party Votes for MPA in $district', mpaVotes),
-                            const Divider(),
-                            _buildWinnerInfo(
-                                mnaVotes, 'Minister Of National Assembly'),
-                            _buildWinnerInfo(
-                                mpaVotes, 'Minister Of Province Assembly'),
-                          ],
-                        ),
-                      ],
-                    );
-                  },
+      appBar: AppBar(
+        leading: const Icon(Icons.notifications_none),
+        actions: const [CircleAvatar()],
+        title: const Text('Search District'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                hintText: 'Search District',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
                 ),
-              );
-            },
-          );
-        },
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.trim().toLowerCase();
+                });
+              },
+            ),
+            SizedBox(height: 22.h),
+            const Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "District result",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 16.h),
+            // Display both pie charts horizontally using Row
+            Row(
+              children: [
+                Expanded(
+                  child: FutureBuilder<Map<String, int>>(
+                    future: _fetchVotes('Minister Of National Assembly'),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+                      if (snapshot.hasError || !snapshot.hasData) {
+                        return const Text('Error fetching MNA votes');
+                      }
+                      return _buildPieChart('MNA Results', snapshot.data!);
+                    },
+                  ),
+                ),
+                SizedBox(width: 16.w), // Space between charts
+                Expanded(
+                  child: FutureBuilder<Map<String, int>>(
+                    future: _fetchVotes('Minister Of Provincial Assembly'),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+                      if (snapshot.hasError || !snapshot.hasData) {
+                        return const Text('Error fetching MPA votes');
+                      }
+                      if (snapshot.data!.isEmpty) {
+                        return const Text(
+                            'No MPA votes found for this district.');
+                      }
+                      return _buildPieChart('MPA Results', snapshot.data!);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -154,17 +150,11 @@ class _ResultScreenState extends State<ResultScreen> {
             PieChartData(
               sections: votes.entries.map((entry) {
                 final percentage = (entry.value / totalVotes) * 100;
-                // Limit the length of the party name for better alignment
-                final shortPartyName = entry.key.length > 12
-                    ? entry.key.substring(0, 12) + '...'
-                    : entry.key;
                 return PieChartSectionData(
-                  title: '$shortPartyName: ${percentage.toStringAsFixed(1)}%',
+                  title: '${entry.key}: ${percentage.toStringAsFixed(1)}%',
                   value: percentage,
                   color: _getColorForParty(entry.key),
-                  titleStyle: const TextStyle(fontSize: 12), // Adjust text size
-                  titlePositionPercentageOffset:
-                      0.6, // Offset for better alignment
+                  titleStyle: const TextStyle(fontSize: 12),
                 );
               }).toList(),
             ),
@@ -174,28 +164,23 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
-  // Function to get the winner for a seat
-  Widget _buildWinnerInfo(Map<String, int> votes, String seatType) {
-    if (votes.isEmpty) {
-      return const Text('No winner for this seat.');
-    }
-
-    final winnerParty =
-        votes.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-    return Text('Winner for $seatType: $winnerParty',
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold));
-  }
-
-  // Utility function to assign colors to parties
+  // Assign colors based on party name
   Color _getColorForParty(String party) {
     switch (party) {
-      case 'PTI':
-        return Colors.green;
-      case 'PMLN':
-        return Colors.red;
-      case 'PPP':
+      case 'Pakistan Tehreek-e-Insaf (PTI)':
+        return Color(0xff41B8D5);
+      case 'Pakistan Muslim League-Nawaz (PML-N)':
+        return Color(0xff2d8bba);
+      case 'Pakistan Peoples Party (PPP)':
+        return Color(0xff2f5f98);
+      case 'Jamiat Ulema-e-Islam (F)':
+        return Color(0xff31356e);
+      case 'Muttahida Qaumi Movement (MQM)':
         return Colors.blue;
-      // Add more cases for other parties
+      case 'Awami National Party (ANP)':
+        return Colors.blueAccent;
+      case 'Tehreek-e-Labbaik Pakistan (TLP)':
+        return Colors.lightBlue;
       default:
         return Colors.grey;
     }
