@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -54,11 +56,11 @@ class _ResultScreenState extends State<ResultScreen> {
         actions: const [CircleAvatar()],
         title: const Text('Search District'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
+      body: Column(
+        children: [
+          Padding(
+            padding: REdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search District',
                 prefixIcon: const Icon(Icons.search),
@@ -76,8 +78,11 @@ class _ResultScreenState extends State<ResultScreen> {
                 });
               },
             ),
-            SizedBox(height: 22.h),
-            const Row(
+          ),
+          SizedBox(height: 22.h),
+          Padding(
+            padding: REdgeInsets.symmetric(horizontal: 8.0),
+            child: const Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -86,9 +91,12 @@ class _ResultScreenState extends State<ResultScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 16.h),
-            // Display both pie charts horizontally using Row
-            Row(
+          ),
+          SizedBox(height: 16.h),
+          // Display both pie charts horizontally using Row
+          Padding(
+            padding: REdgeInsets.all(4.0),
+            child: Row(
               children: [
                 Expanded(
                   child: FutureBuilder<Map<String, int>>(
@@ -104,7 +112,9 @@ class _ResultScreenState extends State<ResultScreen> {
                     },
                   ),
                 ),
-                SizedBox(width: 16.w), // Space between charts
+                const SizedBox(
+                  width: 15,
+                ),
                 Expanded(
                   child: FutureBuilder<Map<String, int>>(
                     future: _fetchVotes('Minister Of Provincial Assembly'),
@@ -125,46 +135,121 @@ class _ResultScreenState extends State<ResultScreen> {
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildPieChart(String title, Map<String, int> votes) {
+    final widthOfScreen = MediaQuery.of(context).size.width.w;
     final totalVotes = votes.values.fold(0, (a, b) => a + b);
+    log(widthOfScreen.toString());
 
     if (totalVotes == 0) {
       return const Center(child: Text('No votes to display'));
     }
 
-    return Column(
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(
-          height: 200,
-          child: PieChart(
-            PieChartData(
-              sections: votes.entries.map((entry) {
-                final percentage = (entry.value / totalVotes) * 100;
-                return PieChartSectionData(
-                  title: '${entry.key}: ${percentage.toStringAsFixed(1)}%',
-                  value: percentage,
-                  color: _getColorForParty(entry.key),
-                  titleStyle: const TextStyle(fontSize: 12),
-                );
-              }).toList(),
-            ),
+    return Container(
+      // padding: EdgeInsets.only(right: 15),
+      // margin: EdgeInsets.only(left: 15),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(width: 0.5.w),
+        color: Colors.white,
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromARGB(80, 0, 0, 0),
+            offset: Offset(3, 5),
+            blurRadius: 3,
           ),
-        ),
-      ],
+        ],
+      ),
+
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          ),
+          Row(
+            children: [
+              differentColorContainers(votes),
+              // const SizedBox(
+              //   width: 50,
+              // ),
+              Expanded(
+                child: Container(
+                  padding: REdgeInsets.only(right: 5, bottom: 5),
+                  height: 100.h,
+                  child: SizedBox(
+                    child: PieChart(
+                      PieChartData(
+                        sectionsSpace: 0,
+                        titleSunbeamLayout: true,
+                        centerSpaceRadius: 15.r,
+                        sections: votes.entries.map((entry) {
+                          final percentage = (entry.value / totalVotes) * 100;
+                          final partyName =
+                              extractPartyNameFromBrackets(entry.key);
+                          return PieChartSectionData(
+                            radius: 35,
+                            title: '${percentage.toStringAsFixed(1)}%',
+                            value: percentage,
+                            color: _getColorForParty(entry.key),
+                            titleStyle: const TextStyle(fontSize: 12),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-  // Assign colors based on party name
+  Widget differentColorContainers(Map<String, int> votes) {
+    // Extract unique party names from the votes
+    final uniqueParties = votes.keys.toList();
+
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start, // Align content to the start
+      children: uniqueParties.map((party) {
+        final partyName =
+            extractPartyNameFromBrackets(party); // Extract party name
+        final color = _getColorForParty(party); // Get corresponding color
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(
+              vertical: 4.0, horizontal: 4.0), // Spacing between rows
+          child: Row(
+            mainAxisSize: MainAxisSize.max, // Keep the row compact
+            children: [
+              Container(
+                width: 12.w,
+                height: 12.h,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle, // Circular shape
+                ),
+              ),
+              SizedBox(width: 4.w), // Space between the dot and the party name
+              Text(
+                partyName,
+                style: const TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   Color _getColorForParty(String party) {
     switch (party) {
       case 'Pakistan Tehreek-e-Insaf (PTI)':
@@ -174,7 +259,7 @@ class _ResultScreenState extends State<ResultScreen> {
       case 'Pakistan Peoples Party (PPP)':
         return Color(0xff2f5f98);
       case 'Jamiat Ulema-e-Islam (F)':
-        return Color(0xff31356e);
+        return Color.fromARGB(255, 97, 104, 206);
       case 'Muttahida Qaumi Movement (MQM)':
         return Colors.blue;
       case 'Awami National Party (ANP)':
@@ -185,4 +270,10 @@ class _ResultScreenState extends State<ResultScreen> {
         return Colors.grey;
     }
   }
+}
+
+String extractPartyNameFromBrackets(String text) {
+  final RegExp regex = RegExp(r'\(([^)]+)\)');
+  final match = regex.firstMatch(text);
+  return match != null ? match.group(1) ?? '' : text;
 }

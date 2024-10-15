@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:vote_tracker/Screens/user_screen/mna_mpa_tab_bar_holder/mna_mpa_tab_bar_holder.dart';
 import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/home_screen.dart';
 import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/result_screen.dart';
-import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/voting_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vote_tracker/services/auth_services/auth_service.dart'; // for Firebase
 
