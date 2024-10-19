@@ -16,6 +16,52 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   String _searchQuery = '';
+  String _selectedRole = 'Minister Of National Assembly'; // Role dropdown state
+  String _selectedProvince = 'Punjab'; // Province dropdown state
+
+  final List<String> roles = [
+    'Minister Of National Assembly',
+    'Minister Of Provincial Assembly',
+  ];
+
+  final List<String> provinces = [
+    'Punjab',
+    'Sindh',
+    'Khyber Pakhtunkhwa',
+    'Balochistan',
+  ];
+
+  // Fetch votes for a given province and role
+  Future<Map<String, int>> _fetchProvinceVotes(
+      String candidateRole, String province) async {
+    try {
+      final votesSnapshot = await FirebaseFirestore.instance
+          .collection('votes')
+          .where('candidateRole', isEqualTo: candidateRole)
+          .get();
+
+      final voteCount = <String, int>{};
+
+      for (var doc in votesSnapshot.docs) {
+        final candidateId = doc['candidateId'];
+        final candidateSnapshot = await FirebaseFirestore.instance
+            .collection('Candidates')
+            .doc(candidateId)
+            .get();
+
+        if (candidateSnapshot.exists &&
+            candidateSnapshot['province'].toString().toLowerCase() ==
+                province.toLowerCase()) {
+          final party = candidateSnapshot['party'];
+          voteCount[party] = (voteCount[party] ?? 0) + 1;
+        }
+      }
+      return voteCount;
+    } catch (e) {
+      print('Error fetching votes: $e');
+      return {};
+    }
+  }
 
   // Fetch votes based on the candidate role (MNA/MPA) and district
   Future<Map<String, int>> _fetchVotes(String candidateRole) async {
@@ -56,87 +102,141 @@ class _ResultScreenState extends State<ResultScreen> {
         actions: const [CircleAvatar()],
         title: const Text('Search District'),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: REdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search District',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: REdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search District',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: const BorderSide(color: Colors.blue),
-                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value.trim().toLowerCase();
+                  });
+                },
               ),
+            ),
+            SizedBox(height: 22.h),
+            Padding(
+              padding: REdgeInsets.symmetric(horizontal: 8.0),
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "District result",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16.h),
+            // Display both pie charts horizontally using Row
+            Padding(
+              padding: REdgeInsets.all(4.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FutureBuilder<Map<String, int>>(
+                      future: _fetchVotes('Minister Of National Assembly'),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+                        if (snapshot.hasError || !snapshot.hasData) {
+                          return const Text('Error fetching MNA votes');
+                        }
+                        return _buildPieChart('MNA Results', snapshot.data!);
+                      },
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  Expanded(
+                    child: FutureBuilder<Map<String, int>>(
+                      future: _fetchVotes('Minister Of Provincial Assembly'),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+                        if (snapshot.hasError || !snapshot.hasData) {
+                          return const Text('Error fetching MPA votes');
+                        }
+                        if (snapshot.data!.isEmpty) {
+                          return const Text(
+                              'No MPA votes found for this district.');
+                        }
+                        return _buildPieChart('MPA Results', snapshot.data!);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: REdgeInsets.symmetric(horizontal: 8.0),
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Provisional result",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            _buildDropdown(
+              label: 'Select Role',
+              value: _selectedRole,
+              items: roles,
               onChanged: (value) {
                 setState(() {
-                  _searchQuery = value.trim().toLowerCase();
+                  _selectedRole = value!;
                 });
               },
             ),
-          ),
-          SizedBox(height: 22.h),
-          Padding(
-            padding: REdgeInsets.symmetric(horizontal: 8.0),
-            child: const Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "District result",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ],
+
+            // Dropdown for Province
+            _buildDropdown(
+              label: 'Select Province',
+              value: _selectedProvince,
+              items: provinces,
+              onChanged: (value) {
+                setState(() {
+                  _selectedProvince = value!;
+                });
+              },
             ),
-          ),
-          SizedBox(height: 16.h),
-          // Display both pie charts horizontally using Row
-          Padding(
-            padding: REdgeInsets.all(4.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: FutureBuilder<Map<String, int>>(
-                    future: _fetchVotes('Minister Of National Assembly'),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      }
-                      if (snapshot.hasError || !snapshot.hasData) {
-                        return const Text('Error fetching MNA votes');
-                      }
-                      return _buildPieChart('MNA Results', snapshot.data!);
-                    },
-                  ),
-                ),
-                const SizedBox(
-                  width: 15,
-                ),
-                Expanded(
-                  child: FutureBuilder<Map<String, int>>(
-                    future: _fetchVotes('Minister Of Provincial Assembly'),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      }
-                      if (snapshot.hasError || !snapshot.hasData) {
-                        return const Text('Error fetching MPA votes');
-                      }
-                      if (snapshot.data!.isEmpty) {
-                        return const Text(
-                            'No MPA votes found for this district.');
-                      }
-                      return _buildPieChart('MPA Results', snapshot.data!);
-                    },
-                  ),
-                ),
-              ],
+            FutureBuilder<Map<String, int>>(
+              future: _fetchProvinceVotes(_selectedRole, _selectedProvince),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                }
+                if (snapshot.hasError || !snapshot.hasData) {
+                  return const Text('Error fetching votes');
+                }
+                if (snapshot.data!.isEmpty) {
+                  return const Text('No one got a vote in this province.');
+                }
+                return _buildPieChartProvince(
+                    'Province Results', snapshot.data!);
+              },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -247,6 +347,88 @@ class _ResultScreenState extends State<ResultScreen> {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Widget _buildDropdown({
+    required String label,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Expanded(
+          child: DropdownButtonFormField<String>(
+            value: value,
+            items: items.map((item) {
+              return DropdownMenuItem(
+                value: item,
+                child: Text(item),
+              );
+            }).toList(),
+            onChanged: onChanged,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPieChartProvince(String title, Map<String, int> votes) {
+    final totalVotes = votes.values.fold(0, (a, b) => a + b);
+
+    return Container(
+      margin: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(width: 0.5.w),
+        color: Colors.white,
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromARGB(80, 0, 0, 0),
+            offset: Offset(3, 5),
+            blurRadius: 3,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          ),
+          Container(
+            height: 200,
+            width: 200,
+            child: PieChart(
+              PieChartData(
+                sectionsSpace: 0,
+                centerSpaceRadius: 40.r,
+                sections: votes.entries.map((entry) {
+                  final percentage = (entry.value / totalVotes) * 100;
+                  final partyName = extractPartyNameFromBrackets(entry.key);
+                  return PieChartSectionData(
+                    radius: 35,
+                    title: '${percentage.toStringAsFixed(1)}%',
+                    value: percentage,
+                    color: _getColorForParty(entry.key),
+                    titleStyle: const TextStyle(fontSize: 12),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
