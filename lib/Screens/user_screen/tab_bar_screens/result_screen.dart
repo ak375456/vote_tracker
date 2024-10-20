@@ -17,7 +17,7 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   String _searchQuery = '';
   String _selectedRole = 'Minister Of National Assembly'; // Role dropdown state
-  String _selectedProvince = 'Punjab'; // Province dropdown state
+  String _selectedProvince = 'Khyber Pakhtunkhwa'; // Province dropdown state
 
   final List<String> roles = [
     'Minister Of National Assembly',
@@ -90,6 +90,38 @@ class _ResultScreenState extends State<ResultScreen> {
       return voteCount;
     } catch (e) {
       print('Error fetching $candidateRole votes: $e');
+      return {};
+    }
+  }
+
+  Future<Map<String, int>> _fetchOverallPakistanVotes() async {
+    try {
+      final votesSnapshot =
+          await FirebaseFirestore.instance.collection('votes').get();
+
+      final voteCount = <String, int>{};
+
+      for (var doc in votesSnapshot.docs) {
+        final candidateId = doc['candidateId'];
+        final candidateSnapshot = await FirebaseFirestore.instance
+            .collection('Candidates')
+            .doc(candidateId)
+            .get();
+
+        if (candidateSnapshot.exists) {
+          final party = candidateSnapshot['party'];
+          voteCount[party] = (voteCount[party] ?? 0) + 1;
+        }
+      }
+
+      // Sort the voteCount map to get the top parties
+      final sortedVotes = Map.fromEntries(
+        voteCount.entries.toList()..sort((a, b) => b.value.compareTo(a.value)),
+      );
+
+      return sortedVotes;
+    } catch (e) {
+      print('Error fetching overall Pakistan votes: $e');
       return {};
     }
   }
@@ -186,7 +218,7 @@ class _ResultScreenState extends State<ResultScreen> {
               ),
             ),
             Padding(
-              padding: REdgeInsets.symmetric(horizontal: 8.0),
+              padding: REdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
               child: const Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -197,43 +229,125 @@ class _ResultScreenState extends State<ResultScreen> {
                 ],
               ),
             ),
-            _buildDropdown(
-              label: 'Select Role',
-              value: _selectedRole,
-              items: roles,
-              onChanged: (value) {
-                setState(() {
-                  _selectedRole = value!;
-                });
-              },
-            ),
 
-            // Dropdown for Province
-            _buildDropdown(
-              label: 'Select Province',
-              value: _selectedProvince,
-              items: provinces,
-              onChanged: (value) {
-                setState(() {
-                  _selectedProvince = value!;
-                });
-              },
+            Container(
+              width: MediaQuery.of(context).size.width,
+              margin: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(width: 0.5.w),
+                color: Colors.white,
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color.fromARGB(80, 0, 0, 0),
+                    offset: Offset(3, 5),
+                    blurRadius: 3,
+                  ),
+                ],
+              ),
+              child: Column(children: [
+                LayoutBuilder(builder: (context, constraints) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                        width: constraints.maxWidth * 0.6,
+                        child: _buildDropdown(
+                          label: '',
+                          value: _selectedRole,
+                          items: roles,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedRole = value!;
+                            });
+                          },
+                        ),
+                      ),
+                      // SizedBox(
+                      //   width: 5.w,
+                      // ),
+
+                      // Dropdown for Province
+                      Container(
+                        width: constraints.maxWidth * 0.3,
+                        child: _buildDropdown(
+                          label: '',
+                          value: _selectedProvince,
+                          items: provinces,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedProvince = value!;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+                FutureBuilder<Map<String, int>>(
+                  future: _fetchProvinceVotes(_selectedRole, _selectedProvince),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+                    if (snapshot.hasError || !snapshot.hasData) {
+                      return const Text('Error fetching votes');
+                    }
+                    if (snapshot.data!.isEmpty) {
+                      return const Text('No one got a vote in this province.');
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Row(
+                        children: [
+                          // Display the color containers for province results
+                          differentColorContainers(
+                              snapshot.data!), // Reuse the same method
+                          const SizedBox(
+                              width: 16), // Add spacing between widgets
+
+                          // Display the province pie chart
+                          Expanded(
+                            child: _buildPieChartProvince(
+                                'Province Results', snapshot.data!),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ]),
             ),
-            FutureBuilder<Map<String, int>>(
-              future: _fetchProvinceVotes(_selectedRole, _selectedProvince),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                }
-                if (snapshot.hasError || !snapshot.hasData) {
-                  return const Text('Error fetching votes');
-                }
-                if (snapshot.data!.isEmpty) {
-                  return const Text('No one got a vote in this province.');
-                }
-                return _buildPieChartProvince(
-                    'Province Results', snapshot.data!);
-              },
+            Padding(
+              padding: REdgeInsets.symmetric(horizontal: 8.0),
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Overall Pakistan",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: REdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+              child: FutureBuilder<Map<String, int>>(
+                future: _fetchOverallPakistanVotes(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError || !snapshot.hasData) {
+                    return const Text('Error fetching overall Pakistan votes');
+                  }
+                  if (snapshot.data!.isEmpty) {
+                    return const Text('No votes found across Pakistan.');
+                  }
+                  return _buildPieChart(
+                      'Overall Pakistan Results', snapshot.data!);
+                },
+              ),
             ),
           ],
         ),
@@ -356,30 +470,20 @@ class _ResultScreenState extends State<ResultScreen> {
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
-    return Row(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Expanded(
-          child: DropdownButtonFormField<String>(
-            value: value,
-            items: items.map((item) {
-              return DropdownMenuItem(
-                value: item,
-                child: Text(item),
-              );
-            }).toList(),
-            onChanged: onChanged,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-            ),
+    return DropdownButtonFormField<String>(
+      isExpanded: true,
+      value: value,
+      items: items.map((item) {
+        return DropdownMenuItem(
+          value: item,
+          child: Text(
+            item,
+            style: TextStyle(fontSize: 12),
           ),
-        ),
-      ],
+        );
+      }).toList(),
+      onChanged: onChanged,
+      decoration: InputDecoration(),
     );
   }
 
@@ -387,47 +491,24 @@ class _ResultScreenState extends State<ResultScreen> {
     final totalVotes = votes.values.fold(0, (a, b) => a + b);
 
     return Container(
-      margin: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(width: 0.5.w),
-        color: Colors.white,
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromARGB(80, 0, 0, 0),
-            offset: Offset(3, 5),
-            blurRadius: 3,
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-          ),
-          Container(
-            height: 200,
-            width: 200,
-            child: PieChart(
-              PieChartData(
-                sectionsSpace: 0,
-                centerSpaceRadius: 40.r,
-                sections: votes.entries.map((entry) {
-                  final percentage = (entry.value / totalVotes) * 100;
-                  final partyName = extractPartyNameFromBrackets(entry.key);
-                  return PieChartSectionData(
-                    radius: 35,
-                    title: '${percentage.toStringAsFixed(1)}%',
-                    value: percentage,
-                    color: _getColorForParty(entry.key),
-                    titleStyle: const TextStyle(fontSize: 12),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ],
+      height: 200,
+      width: 200,
+      child: PieChart(
+        PieChartData(
+          sectionsSpace: 0,
+          centerSpaceRadius: 40.r,
+          sections: votes.entries.map((entry) {
+            final percentage = (entry.value / totalVotes) * 100;
+            final partyName = extractPartyNameFromBrackets(entry.key);
+            return PieChartSectionData(
+              radius: 35,
+              title: '${percentage.toStringAsFixed(1)}%',
+              value: percentage,
+              color: _getColorForParty(entry.key),
+              titleStyle: const TextStyle(fontSize: 12),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
