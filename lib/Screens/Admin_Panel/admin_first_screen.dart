@@ -76,131 +76,137 @@ class _AdminFirstScreenState extends State<AdminFirstScreen> {
   }
 
   Future<void> _endElection() async {
-    // Fetch the active election
-    final activeElectionSnapshot = await FirebaseFirestore.instance
-        .collection('elections')
-        .orderBy('startTime', descending: true)
-        .limit(1)
-        .get();
-
-    if (activeElectionSnapshot.docs.isEmpty) {
-      log('No active election found');
-      return;
-    }
-
-    final activeElection = activeElectionSnapshot.docs.first;
-
-    // Fetch the votes for the active election
-    final votesSnapshot = await FirebaseFirestore.instance
-        .collection('votes')
-        .where('electionId', isEqualTo: activeElection.id)
-        .get();
-
-    if (votesSnapshot.docs.isEmpty) {
-      log('No votes found for the active election');
-      return;
-    }
-
-    final votes = votesSnapshot.docs.map((doc) => doc.data()).toList();
-
-    // Calculate the results
-    final results = <String, Map<String, Map<String, Map<String, int>>>>{};
-
-    for (var vote in votes) {
-      final candidateId = vote['candidateId'] as String?;
-      final candidateRole = vote['candidateRole']
-          as String?; // Minister Of Province Assembly or Minister Of National Assembly
-
-      if (candidateId == null || candidateRole == null) {
-        log('Invalid vote data: $vote');
-        continue; // Skip invalid vote data
-      }
-
-      // Fetch the candidate from Firestore
-      final candidateDoc = await FirebaseFirestore.instance
-          .collection('Candidates')
-          .doc(candidateId)
+    try {
+      // Fetch the active election
+      final activeElectionSnapshot = await FirebaseFirestore.instance
+          .collection('elections')
+          .orderBy('startTime', descending: true)
+          .limit(1)
           .get();
 
-      if (!candidateDoc.exists) {
-        log('No candidate found for candidateId: $candidateId');
-        continue; // Skip this vote and continue with the next one
+      if (activeElectionSnapshot.docs.isEmpty) {
+        log('No active election found');
+        return;
       }
 
-      final candidate = candidateDoc.data();
+      final activeElection = activeElectionSnapshot.docs.first;
 
-      if (candidate == null ||
-          !candidate.containsKey('district') ||
-          !candidate.containsKey('province')) {
-        log('Candidate data is null or missing district/province for candidateId: $candidateId');
-        continue; // Skip this vote and continue with the next one
+      // Fetch the votes for the active election
+      final votesSnapshot = await FirebaseFirestore.instance
+          .collection('votes')
+          .where('electionId', isEqualTo: activeElection.id)
+          .get();
+
+      if (votesSnapshot.docs.isEmpty) {
+        log('No votes found for the active election');
+        return;
       }
 
-      final district = candidate['district'] as String;
-      final province = candidate['province'] as String;
+      final votes = votesSnapshot.docs.map((doc) => doc.data()).toList();
 
-      if (!results.containsKey(province)) {
-        results[province] = {};
+      // Initialize results structure
+      final results = <String, Map<String, Map<String, Map<String, int>>>>{};
+
+      for (var vote in votes) {
+        // Check and extract required fields from the vote
+        final candidateId = vote['candidateId'] as String?;
+        final candidateRole = vote['candidateRole'] as String?;
+
+        if (candidateId == null || candidateRole == null) {
+          log('Invalid vote data: $vote');
+          continue;
+        }
+
+        // Fetch the candidate document from Firestore
+        final candidateDoc = await FirebaseFirestore.instance
+            .collection('Candidates')
+            .doc(candidateId)
+            .get();
+
+        final candidateData = candidateDoc.data();
+        if (candidateData == null) {
+          log('No candidate found for candidateId: $candidateId');
+          continue;
+        }
+
+        final district = candidateData['district'] as String?;
+        final province = candidateData['province'] as String?;
+
+        if (district == null || province == null) {
+          log('Missing district or province for candidateId: $candidateId');
+          continue;
+        }
+
+        // Safely initialize nested map structures
+        results.putIfAbsent(province, () => {});
+        results[province]!.putIfAbsent(
+            district,
+            () => {
+                  'Minister Of Province Assembly': {},
+                  'Minister Of National Assembly': {}
+                });
+
+        // Increment vote count
+        // final roleVotes = results[province]![district]![candidateRole]!;
+        // roleVotes[candidateId] = (roleVotes[candidateId] ?? 0) + 1;
       }
 
-      if (!results[province]!.containsKey(district)) {
-        results[province]![district] = {
-          'Minister Of Province Assembly': {},
-          'Minister Of National Assembly': {}
-        };
-      }
+      // Calculate the election winners for each district and province
+      final electionResults = <String, dynamic>{};
 
-      if (!results[province]![district]![candidateRole]!
-          .containsKey(candidateId)) {
-        results[province]![district]![candidateRole]![candidateId] = 0;
-      }
+      results.forEach((province, provinceResults) {
+        final provinceData = <String, dynamic>{};
 
-      results[province]![district]![candidateRole]![candidateId] =
-          results[province]![district]![candidateRole]![candidateId]! + 1;
-    }
+        provinceResults.forEach((district, districtResults) {
+          final provinceAssemblyResults =
+              districtResults['Minister Of Province Assembly'];
+          final nationalAssemblyResults =
+              districtResults['Minister Of National Assembly'];
 
-    final electionResults = <String, dynamic>{};
+          // Determine the winners if votes are available
+          if (provinceAssemblyResults != null &&
+              provinceAssemblyResults.isNotEmpty) {
+            final provinceAssemblyWinner = provinceAssemblyResults.entries
+                .reduce((a, b) => a.value > b.value ? a : b);
+            provinceData[district] = {
+              'minister_of_province_assembly': provinceAssemblyWinner.key
+            };
+          }
 
-    results.forEach((province, provinceResults) {
-      final provinceData = {};
+          if (nationalAssemblyResults != null &&
+              nationalAssemblyResults.isNotEmpty) {
+            final nationalAssemblyWinner = nationalAssemblyResults.entries
+                .reduce((a, b) => a.value > b.value ? a : b);
+            provinceData[district] ??= {};
+            provinceData[district]['minister_of_national_assembly'] =
+                nationalAssemblyWinner.key;
+          }
+        });
 
-      provinceResults.forEach((district, districtResults) {
-        final provinceAssemblyResults =
-            districtResults['Minister Of Province Assembly'];
-        final nationalAssemblyResults =
-            districtResults['Minister Of National Assembly'];
-
-        final provinceAssemblyWinner = provinceAssemblyResults!.entries
-            .reduce((a, b) => a.value > b.value ? a : b);
-
-        final nationalAssemblyWinner = nationalAssemblyResults!.entries
-            .reduce((a, b) => a.value > b.value ? a : b);
-
-        provinceData[district] = {
-          'minister_of_province_assembly': provinceAssemblyWinner.key,
-          'minister_of_national_assembly': nationalAssemblyWinner.key,
-        };
+        electionResults[province] = provinceData;
       });
 
-      electionResults[province] = provinceData;
-    });
+      // Save the election results to Firestore
+      await FirebaseFirestore.instance
+          .collection('election_results')
+          .doc('general_election_of_2024')
+          .set({
+        'results': electionResults,
+        'timestamp': Timestamp.now(),
+      });
 
-    // Save the results to Firestore
-    await FirebaseFirestore.instance
-        .collection('election_results')
-        .doc('general_election_of_2024')
-        .set({
-      'results': electionResults,
-      'timestamp': Timestamp.now(),
-    });
+      // Remove the active election
+      await activeElection.reference.delete();
 
-    // Remove the active election
-    await activeElection.reference.delete();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-          content: Text('Election ended successfully! Results saved.')),
-    );
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Election ended successfully! Results saved.'),
+        ),
+      );
+    } catch (e, stacktrace) {
+      log('Error: $e\nStacktrace: $stacktrace');
+    }
   }
 
   Future<Duration?> _showDurationDialog() async {

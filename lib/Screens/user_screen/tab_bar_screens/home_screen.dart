@@ -14,7 +14,8 @@ class HomeScreen extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Home screen"),
+          title: const Text("Votify"),
+          centerTitle: true,
           actions: [
             IconButton(
               onPressed: () {

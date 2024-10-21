@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) => MaterialApp(
         theme: ThemeData(scaffoldBackgroundColor: Colors.white),
         debugShowCheckedModeBanner: false,
-        home: AuthGate(),
+        home: const AuthGate(),
       ),
       designSize: Size(
           MediaQuery.sizeOf(context).width, MediaQuery.sizeOf(context).height),

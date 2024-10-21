@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -152,5 +153,16 @@ class AuthServices with ChangeNotifier {
 
   User? getCurrentUser() {
     return firebaseAuth.currentUser;
+  }
+
+  Future<Map<String, dynamic>?> getCurrentUserData() async {
+    try {
+      final doc =
+          await firestore.collection("Users").doc(getCurrentUser()!.uid).get();
+      return doc.data(); // Ensure we return the data
+    } catch (e) {
+      log(e.toString());
+      return null; // Handle error by returning null
+    }
   }
 }

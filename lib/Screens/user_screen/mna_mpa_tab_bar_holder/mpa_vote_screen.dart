@@ -313,7 +313,7 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
           ),
           SizedBox(height: 15.h),
           Padding(
-            padding: REdgeInsets.only(left: 18.0),
+            padding: REdgeInsets.only(left: 0.0),
             child: Row(
               children: [
                 const CircleAvatar(

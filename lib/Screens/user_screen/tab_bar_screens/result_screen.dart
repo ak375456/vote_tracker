@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:vote_tracker/services/auth_services/auth_service.dart';
 
 class ResultScreen extends StatefulWidget {
   final String userDistrict; // User's district passed here
@@ -127,12 +129,42 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  String? profileImageUrl;
+  Future<void> loadUserData() async {
+    final userServices = Provider.of<AuthServices>(context);
+    try {
+      final userData = await userServices.getCurrentUserData();
+      if (userData != null && userData['image'] != null) {
+        setState(() {
+          profileImageUrl = userData['image'];
+        });
+      } else {
+        log("No profile image found.");
+      }
+    } catch (e) {
+      log("Error: ${e.toString()}");
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: const Icon(Icons.notifications_none),
-        actions: const [CircleAvatar()],
-        title: const Text('Search District'),
+        actions: [
+          CircleAvatar(
+            child: profileImageUrl != null
+                ? Image.network(profileImageUrl!)
+                : const Icon(Icons.person),
+          ),
+        ],
+        title: const Text('Votify'),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -344,7 +376,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   if (snapshot.data!.isEmpty) {
                     return const Text('No votes found across Pakistan.');
                   }
-                  return _buildPieChart(
+                  return _buildPieChartPakistan(
                       'Overall Pakistan Results', snapshot.data!);
                 },
               ),
@@ -402,6 +434,77 @@ class _ResultScreenState extends State<ResultScreen> {
                         sectionsSpace: 0,
                         titleSunbeamLayout: true,
                         centerSpaceRadius: 15.r,
+                        sections: votes.entries.map((entry) {
+                          final percentage = (entry.value / totalVotes) * 100;
+                          final partyName =
+                              extractPartyNameFromBrackets(entry.key);
+                          return PieChartSectionData(
+                            radius: 35,
+                            title: '${percentage.toStringAsFixed(1)}%',
+                            value: percentage,
+                            color: _getColorForParty(entry.key),
+                            titleStyle: const TextStyle(fontSize: 12),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPieChartPakistan(String title, Map<String, int> votes) {
+    final widthOfScreen = MediaQuery.of(context).size.width.w;
+    final totalVotes = votes.values.fold(0, (a, b) => a + b);
+    log(widthOfScreen.toString());
+
+    if (totalVotes == 0) {
+      return const Center(child: Text('No votes to display'));
+    }
+
+    return Container(
+      // padding: EdgeInsets.only(right: 15),
+      // margin: EdgeInsets.only(left: 15),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(width: 0.5.w),
+        color: Colors.white,
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromARGB(80, 0, 0, 0),
+            offset: Offset(3, 5),
+            blurRadius: 3,
+          ),
+        ],
+      ),
+
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          ),
+          Row(
+            children: [
+              differentColorContainers(votes),
+              // const SizedBox(
+              //   width: 50,
+              // ),
+              Expanded(
+                child: Container(
+                  padding: REdgeInsets.only(right: 5, bottom: 5),
+                  height: 100.h,
+                  child: SizedBox(
+                    child: PieChart(
+                      PieChartData(
+                        sectionsSpace: 0,
+                        titleSunbeamLayout: true,
+                        centerSpaceRadius: 50.r,
                         sections: votes.entries.map((entry) {
                           final percentage = (entry.value / totalVotes) * 100;
                           final partyName =
