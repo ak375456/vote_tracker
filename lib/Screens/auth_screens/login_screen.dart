@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'package:vote_tracker/Screens/Admin_Panel/admin_first_screen.dart';
+import 'package:vote_tracker/Screens/Admin_Panel/admin_screen_bottom_nav_holder.dart';
 import 'package:vote_tracker/Screens/auth_screens/sign_up_screen.dart';
 import 'package:vote_tracker/Screens/candidate_screens/candidate_login.dart';
 import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/bottom_nav_bar_helper.dart';
@@ -211,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
             // ignore: use_build_context_synchronously
             context,
             MaterialPageRoute(
-              builder: (context) => const AdminFirstScreen(),
+              builder: (context) => const BottomNavBarOfAdmin(),
             ),
           );
         }

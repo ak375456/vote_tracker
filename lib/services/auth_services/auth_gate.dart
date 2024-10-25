@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vote_tracker/Screens/Admin_Panel/admin_first_screen.dart';
+import 'package:vote_tracker/Screens/Admin_Panel/admin_screen_bottom_nav_holder.dart';
 import 'package:vote_tracker/Screens/OnBoardingScreen/boarding_screen.dart';
 import 'package:vote_tracker/Screens/candidate_screens/candidate_homescreen.dart';
 import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/bottom_nav_bar_helper.dart';
@@ -53,7 +54,7 @@ class AuthGateState extends State<AuthGate> {
           if (_isCandidate) {
             return const CandidateHomeScreen();
           } else if (_user!.uid == 'SSV3VhaghwNOa8RSJDavNCZmOtW2') {
-            return const AdminFirstScreen();
+            return const BottomNavBarOfAdmin();
           } else {
             return const BottomNavBarOfApp();
           }
