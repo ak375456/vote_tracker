@@ -66,10 +66,9 @@ class FancyContainerState extends State<FancyContainer>
               height: widget.size.height,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(360),
-                gradient: LinearGradient(
-                  tileMode: TileMode.mirror,
-                  begin: Alignment.center,
-                  end: Alignment.topRight,
+                gradient: RadialGradient(
+                  center: Alignment(0, 2),
+                  tileMode: TileMode.repeated,
                   transform: SlideGradient(
                     controller.value,
                     widget.size.height * aspectRatio,
@@ -96,12 +95,17 @@ class FancyContainerState extends State<FancyContainer>
 
 class SlideGradient implements GradientTransform {
   final double value;
-  final double offset;
-  const SlideGradient(this.value, this.offset);
+  final double size;
+
+  const SlideGradient(this.value, this.size);
 
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
-    final dist = value * (bounds.width + offset);
-    return Matrix4.identity()..translate(-dist);
+    // Calculate the distance based on animation value and container size
+    final dist = value * size / 2;
+    print(dist);
+
+    // Translate the gradient outwards from the center
+    return Matrix4.identity()..translate(dist, -dist);
   }
 }

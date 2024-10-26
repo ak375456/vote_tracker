@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vote_tracker/models/election_model.dart';
 import 'package:vote_tracker/reusable_widgets/animated_container.dart';
 import 'package:vote_tracker/services/candidate_services/candidate_services.dart';
@@ -104,15 +105,42 @@ class _StartElectionScreenState extends State<StartElectionScreen> {
         title: const Text("Votifiy"),
         centerTitle: true,
       ),
-      body: Center(
-        child: InkWell(
-          onTap: _startElection,
-          child: FancyContainer(
-            key: _fancyContainerKey, // Set the key to access FancyContainer
-            size: const Size(250, 250),
-            cycle: const Duration(seconds: 2),
-            colors: [Colors.cyan, Colors.blue, Colors.blueAccent],
-          ),
+      body: Padding(
+        padding: REdgeInsets.symmetric(horizontal: 18.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Row(),
+            Center(
+              child: InkWell(
+                onTap: _startElection,
+                child: FancyContainer(
+                  key:
+                      _fancyContainerKey, // Set the key to access FancyContainer
+                  size: const Size(250, 250),
+                  cycle: const Duration(seconds: 2),
+                  colors: const [
+                    Colors.cyan,
+                    Colors.blue,
+                    Colors.blueAccent,
+                    Colors.lightBlueAccent,
+                    Colors.cyanAccent
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 50.h,
+            ),
+            Text(
+              "Press the ”Start” button to start the Election !",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20.sp,
+                decoration: TextDecoration.underline,
+              ),
+            )
+          ],
         ),
       ),
     );
