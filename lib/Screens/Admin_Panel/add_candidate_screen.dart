@@ -179,10 +179,11 @@ class _AddCandidateScreenState extends State<AddCandidateScreen> {
                                                 borderRadius:
                                                     BorderRadius.circular(90),
                                               ),
-                                              child: const Center(
+                                              child: Center(
                                                 child: Text(
-                                                  "MNA",
-                                                  style: TextStyle(
+                                                  getInitials(candidate[
+                                                      'candidateRole']), //-----------------------------------------------------
+                                                  style: const TextStyle(
                                                       fontSize: 14,
                                                       fontWeight:
                                                           FontWeight.bold),
@@ -239,4 +240,12 @@ String extractTextInBrackets(String text) {
   final RegExp regex = RegExp(r'\(([^)]+)\)');
   final match = regex.firstMatch(text);
   return match != null ? match.group(1) ?? '' : '';
+}
+
+String getInitials(String text) {
+  return text
+      .split(' ')
+      .where((word) => word.toLowerCase() != 'of')
+      .map((word) => word[0].toUpperCase())
+      .join('');
 }
