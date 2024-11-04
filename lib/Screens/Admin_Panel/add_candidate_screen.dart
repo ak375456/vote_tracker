@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:vote_tracker/Screens/Admin_Panel/edit_candidate_info.dart';
 import 'package:vote_tracker/Screens/Admin_Panel/register_candidate.dart';
 import 'package:vote_tracker/reusable_widgets/my_form.dart';
 import 'package:vote_tracker/services/candidate_services/candidate_services.dart';
@@ -83,7 +84,6 @@ class _AddCandidateScreenState extends State<AddCandidateScreen> {
                       final candidate = candidates[index];
                       final partyFlagPath =
                           partyFlags[candidate['party']] ?? '';
-                      // log(candidate[]);
                       return Slidable(
                         direction: Axis.horizontal,
                         endActionPane: ActionPane(
@@ -104,115 +104,127 @@ class _AddCandidateScreenState extends State<AddCandidateScreen> {
                             ),
                           ],
                         ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                              width: 1.w,
-                              color: const Color.fromARGB(120, 0, 0, 0),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const EditCandidateInfo(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            margin: REdgeInsets.symmetric(vertical: 6),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(
+                                width: 1.w,
+                                color: const Color.fromARGB(120, 0, 0, 0),
+                              ),
                             ),
-                          ),
-                          width: MediaQuery.of(context).size.width,
-                          height: 100,
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: REdgeInsets.only(left: 8.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      // mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          extractTextInBrackets(
-                                            candidate['party'],
+                            width: MediaQuery.of(context).size.width,
+                            height: 100,
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: REdgeInsets.only(left: 8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        // mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            extractTextInBrackets(
+                                              candidate['party'],
+                                            ),
                                           ),
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            CircleAvatar(
-                                              maxRadius: 25,
-                                              backgroundImage: NetworkImage(
-                                                candidate['image'],
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 5.h,
-                                            ),
-                                            Column(
-                                              // crossAxisAlignment:
-                                              // CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  candidate['fullName'],
-                                                  style: TextStyle(
-                                                      fontSize: 14.sp,
-                                                      fontWeight:
-                                                          FontWeight.w400),
-                                                ),
-                                                Text(
-                                                  candidate['fullAddress']
-                                                      .toString()
-                                                      .substring(
-                                                          0,
-                                                          candidate['fullAddress']
-                                                                  .toString()
-                                                                  .length -
-                                                              9),
-                                                  style: TextStyle(
-                                                      fontSize: 12.sp,
-                                                      color: Color(0xff585858)),
-                                                ),
-                                              ],
-                                            ),
-                                            Container(
-                                              height: 40,
-                                              width: 40,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(width: 1),
-                                                borderRadius:
-                                                    BorderRadius.circular(90),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  getInitials(candidate[
-                                                      'candidateRole']), //-----------------------------------------------------
-                                                  style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              CircleAvatar(
+                                                maxRadius: 25,
+                                                backgroundImage: NetworkImage(
+                                                  candidate['image'],
                                                 ),
                                               ),
+                                              SizedBox(
+                                                width: 5.h,
+                                              ),
+                                              Column(
+                                                // crossAxisAlignment:
+                                                // CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    candidate['fullName'],
+                                                    style: TextStyle(
+                                                        fontSize: 14.sp,
+                                                        fontWeight:
+                                                            FontWeight.w400),
+                                                  ),
+                                                  Text(
+                                                    candidate['fullAddress']
+                                                        .toString()
+                                                        .substring(
+                                                            0,
+                                                            candidate['fullAddress']
+                                                                    .toString()
+                                                                    .length -
+                                                                9),
+                                                    style: TextStyle(
+                                                        fontSize: 12.sp,
+                                                        color:
+                                                            Color(0xff585858)),
+                                                  ),
+                                                ],
+                                              ),
+                                              Container(
+                                                height: 40,
+                                                width: 40,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(width: 1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(90),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    getInitials(candidate[
+                                                        'candidateRole']), //-----------------------------------------------------
+                                                    style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      Expanded(
+                                        child: Align(
+                                          alignment: Alignment
+                                              .centerRight, // Aligns the image to the right
+                                          child: Container(
+                                            height: 80
+                                                .h, // Set a consistent height for the container
+                                            child: Image.asset(
+                                              partyFlagPath,
+                                              fit: BoxFit
+                                                  .contain, // Keeps image proportions consistent within height
                                             ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Expanded(
-                                      child: Align(
-                                        alignment: Alignment
-                                            .centerRight, // Aligns the image to the right
-                                        child: Container(
-                                          height: 80
-                                              .h, // Set a consistent height for the container
-                                          child: Image.asset(
-                                            partyFlagPath,
-                                            fit: BoxFit
-                                                .contain, // Keeps image proportions consistent within height
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );
