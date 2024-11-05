@@ -109,8 +109,8 @@ class _AddCandidateScreenState extends State<AddCandidateScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const EditCandidateInfo(),
-                              ),
+                                  builder: (context) => EditCandidateInfo(
+                                      candidateId: candidate['uid'])),
                             );
                           },
                           child: Container(
