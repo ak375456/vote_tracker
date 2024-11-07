@@ -92,7 +92,6 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
       child: Scaffold(
         body: Stack(
           children: [
-            const TwoCircles(),
             Padding(
               padding: REdgeInsets.symmetric(horizontal: 16.0),
               child: Form(
@@ -103,6 +102,8 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        Text("Candidate"),
+                        SizedBox(height: 20.h),
                         GestureDetector(
                           onTap: () async {
                             profileImage =
@@ -148,6 +149,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             ],
                           ),
                         ),
+                        SizedBox(height: 20.h),
                         MyTextFormField(
                           controller: nameController,
                           prefixIcon: Icons.person,
@@ -160,6 +162,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             return null;
                           },
                         ),
+                        SizedBox(height: 12.h),
                         MyTextFormField(
                           controller: emaillController,
                           hintText: emailHelperText,
@@ -177,6 +180,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                           },
                           prefixIcon: Icons.email,
                         ),
+                        SizedBox(height: 12.h),
                         MyTextFormField(
                           controller: passwordController,
                           labelText: password,
@@ -200,6 +204,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                           },
                           hideText: passwordProvider.isObsecureText,
                         ),
+                        SizedBox(height: 12.h),
                         MyTextFormField(
                           textInputType: TextInputType.number,
                           controller: numberController,
@@ -218,6 +223,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                           },
                           prefixText: countryCode,
                         ),
+                        SizedBox(height: 12.h),
                         MyTextFormField(
                           maxLength: 15,
                           textInputType: TextInputType.number,
@@ -261,6 +267,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             return "";
                           },
                         ),
+                        SizedBox(height: 12.h),
                         DateOfBirthFormField(
                           controller: dateOfBirthController,
                           validator: (value) {
@@ -280,6 +287,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             });
                           },
                         ),
+                        SizedBox(height: 12.h),
                         CheckboxListTile(
                           activeColor: darkGreenColor,
                           title: const Text('Female'),
@@ -293,6 +301,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             });
                           },
                         ),
+                        SizedBox(height: 12.h),
                         SizedBox(
                           width: double.infinity,
                           child: DropdownButtonFormField<String>(
@@ -329,6 +338,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             },
                           ),
                         ),
+                        SizedBox(height: 12.h),
                         SizedBox(
                           width: double.infinity,
                           child: DropdownButtonFormField<String>(
@@ -362,6 +372,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             },
                           ),
                         ),
+                        SizedBox(height: 12.h),
                         MyTextFormField(
                           prefixIcon: Icons.link,
                           controller: websiteController,
@@ -380,6 +391,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             return null;
                           },
                         ),
+                        SizedBox(height: 12.h),
                         MyTextFormField(
                           prefixIcon: Icons.work,
                           controller: occupationController,
@@ -392,6 +404,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             return null;
                           },
                         ),
+                        SizedBox(height: 12.h),
                         SizedBox(
                           width: double.infinity,
                           child: DropdownButtonFormField<String>(
@@ -424,6 +437,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             },
                           ),
                         ),
+                        SizedBox(height: 12.h),
                         SizedBox(
                           width: double.infinity,
                           child: DropdownButtonFormField<String>(
@@ -464,6 +478,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             },
                           ),
                         ),
+                        SizedBox(height: 12.h),
                         SizedBox(
                           width: double.infinity,
                           child: DropdownButtonFormField<String>(
@@ -496,24 +511,54 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             },
                           ),
                         ),
-                        isLoading
-                            ? Center(
-                                child: SpinKitCircle(
-                                  // Using a CircularProgressIndicator for loading indication
-                                  color: darkGreenColor,
-                                ),
-                              )
-                            : MyButton(
-                                buttonText: "Register Candidate",
-                                buttonFunction: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    log("btnFunc");
-                                    registerCandidate();
-                                  }
-                                },
-                              ),
+                        SizedBox(
+                          height: 80.h,
+                        )
                       ],
                     ),
+                  ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: AlignmentDirectional.bottomCenter,
+              child: Container(
+                height: 80.h,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color.fromARGB(159, 0, 0, 0),
+                      offset: Offset(0, -1),
+                      blurRadius: 5,
+                    ),
+                  ],
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(8.r),
+                    topRight: Radius.circular(8.r),
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: isLoading
+                        ? Center(
+                            child: SpinKitCircle(
+                              // Using a CircularProgressIndicator for loading indication
+                              color: darkGreenColor,
+                            ),
+                          )
+                        : MyButton(
+                            buttonText: "Add",
+                            buttonFunction: () async {
+                              if (_formKey.currentState!.validate()) {
+                                log("btnFunc");
+                                registerCandidate();
+                              }
+                            },
+                          ),
                   ),
                 ),
               ),
