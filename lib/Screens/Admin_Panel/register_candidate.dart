@@ -73,8 +73,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
     super.dispose();
   }
 
-  bool isMaleSelected = false;
-  bool isFemaleSelected = false;
+  String? selectedGender;
   bool isLoading = false;
   String? provinceAndCountry;
   @override
@@ -120,8 +119,6 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                                           const AssetImage("assets/nopic.png"),
                                     )
                                   : CircleAvatar(
-                                      backgroundColor: darkGreenColor,
-                                      foregroundColor: darkGreenColor,
                                       radius: 40.r,
                                       child: ClipOval(
                                         child: Image.file(
@@ -140,7 +137,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                                     ),
                               CircleAvatar(
                                 radius: 15.r,
-                                backgroundColor: darkGreenColor,
+                                backgroundColor: Colors.black,
                                 child: const Icon(
                                   Icons.camera_alt_outlined,
                                   color: Colors.white,
@@ -274,37 +271,55 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                             return null;
                           },
                         ),
-                        CheckboxListTile(
-                          activeColor: darkGreenColor,
-                          title: const Text('Male'),
-                          value: isMaleSelected,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              isMaleSelected = value!;
-                              if (isMaleSelected) {
-                                isFemaleSelected = false;
-                              }
-                            });
-                          },
-                        ),
                         SizedBox(height: 12.h),
-                        CheckboxListTile(
-                          activeColor: darkGreenColor,
-                          title: const Text('Female'),
-                          value: isFemaleSelected,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              isFemaleSelected = value!;
-                              if (isFemaleSelected) {
-                                isMaleSelected = false;
+                        SizedBox(
+                          width: double.infinity,
+                          child: DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  15,
+                                ),
+                              ),
+                            ),
+                            isExpanded: true,
+                            hint: const Text("Gender"),
+                            value: selectedGender,
+                            icon: const Icon(Icons.arrow_downward),
+                            iconSize: 24,
+                            elevation: 0,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                selectedGender = newValue;
+                              });
+                            },
+                            items: <String>['Male', 'Female']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                alignment: Alignment.center,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please select a gender';
                               }
-                            });
-                          },
+                              return null;
+                            },
+                          ),
                         ),
                         SizedBox(height: 12.h),
                         SizedBox(
                           width: double.infinity,
                           child: DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  15,
+                                ),
+                              ),
+                            ),
                             isExpanded: true,
                             hint: const Text("Province"),
                             value: selectedProvince,
@@ -342,6 +357,13 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                         SizedBox(
                           width: double.infinity,
                           child: DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  15,
+                                ),
+                              ),
+                            ),
                             isExpanded: true,
                             hint: const Text("District"),
                             value: selectedDistrict,
@@ -408,6 +430,13 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                         SizedBox(
                           width: double.infinity,
                           child: DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  15,
+                                ),
+                              ),
+                            ),
                             isExpanded: true,
                             hint: const Text("Party Affiliation"),
                             value: partyAffiliation,
@@ -441,6 +470,13 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                         SizedBox(
                           width: double.infinity,
                           child: DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  15,
+                                ),
+                              ),
+                            ),
                             isExpanded: true,
                             hint: const Text("Party"),
                             value: party,
@@ -482,6 +518,13 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
                         SizedBox(
                           width: double.infinity,
                           child: DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  15,
+                                ),
+                              ),
+                            ),
                             isExpanded: true,
                             hint: const Text("Candidate Role"),
                             value: candidateRole,
@@ -589,7 +632,7 @@ class _RegisterCandidateState extends State<RegisterCandidate> {
           fullName: nameController.text.toString().trim(),
           dateOfBirth: dateOfBirthTimestamp,
           image: profileImage,
-          gender: isMaleSelected ? 'Male' : 'Female',
+          gender: selectedGender,
           cnic: cnicController.text.toString().trim(),
           fullAddress: selectedDistrict! + provinceAndCountry!,
           number: countryCode + numberController.text.toString().trim(),

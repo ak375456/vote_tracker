@@ -237,7 +237,7 @@ class _EditCandidateInfoState extends State<EditCandidateInfo> {
                                       ),
                                       CircleAvatar(
                                         radius: 15.r,
-                                        backgroundColor: darkGreenColor,
+                                        backgroundColor: Colors.black,
                                         child: const Icon(
                                           Icons.camera_alt_outlined,
                                           color: Colors.white,
@@ -340,6 +340,13 @@ class _EditCandidateInfoState extends State<EditCandidateInfo> {
                                 SizedBox(
                                   width: double.infinity,
                                   child: DropdownButtonFormField<String>(
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          15,
+                                        ),
+                                      ),
+                                    ),
                                     isExpanded: true,
                                     hint: const Text("Province"),
                                     value: selectedProvince,
@@ -382,6 +389,13 @@ class _EditCandidateInfoState extends State<EditCandidateInfo> {
                                 SizedBox(
                                   width: double.infinity,
                                   child: DropdownButtonFormField<String>(
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          15,
+                                        ),
+                                      ),
+                                    ),
                                     isExpanded: true,
                                     hint: const Text("District"),
                                     value: selectedDistrict,
@@ -460,6 +474,13 @@ class _EditCandidateInfoState extends State<EditCandidateInfo> {
                                 SizedBox(
                                   width: double.infinity,
                                   child: DropdownButtonFormField<String>(
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          15,
+                                        ),
+                                      ),
+                                    ),
                                     isExpanded: true,
                                     hint: const Text("Party Affiliation"),
                                     value: partyAffiliation,
@@ -496,6 +517,13 @@ class _EditCandidateInfoState extends State<EditCandidateInfo> {
                                 SizedBox(
                                   width: double.infinity,
                                   child: DropdownButtonFormField<String>(
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          15,
+                                        ),
+                                      ),
+                                    ),
                                     isExpanded: true,
                                     hint: const Text("Party"),
                                     value: party,
@@ -540,6 +568,13 @@ class _EditCandidateInfoState extends State<EditCandidateInfo> {
                                 SizedBox(
                                   width: double.infinity,
                                   child: DropdownButtonFormField<String>(
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          15,
+                                        ),
+                                      ),
+                                    ),
                                     isExpanded: true,
                                     hint: const Text("Candidate Role"),
                                     value: candidateRole,
