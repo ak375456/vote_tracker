@@ -151,187 +151,199 @@ class _MnaVoteScreenState extends State<MnaVoteScreen> {
     final isFromUserDistrict = candidate['district'] == widget.userDistrict;
     final partyFlagPath = partyFlags[candidate['party']] ?? '';
 
-    return Container(
-      margin: REdgeInsets.symmetric(vertical: 18),
-      padding: REdgeInsets.only(bottom: 11),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          width: 1.w,
-          color: const Color.fromARGB(120, 0, 0, 0),
+    return Padding(
+      padding: REdgeInsets.symmetric(horizontal: 8.0),
+      child: Container(
+        margin: REdgeInsets.symmetric(vertical: 18),
+        padding: REdgeInsets.only(bottom: 11),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            width: 1.w,
+            color: const Color.fromARGB(120, 0, 0, 0),
+          ),
         ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: REdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color.fromARGB(159, 0, 0, 0),
-                      offset: Offset(0, 1),
-                      blurRadius: 1,
-                    ),
-                  ],
-                  color: const Color.fromARGB(255, 192, 192, 192),
-                ),
-                child: Text(
-                  candidate['party'],
-                ),
-              ),
-              Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Image.asset(partyFlagPath),
-              )
-            ],
-          ),
-          SizedBox(
-            height: 10.h,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 18.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      maxRadius: 40,
-                      backgroundImage: NetworkImage(
-                        candidate['image'],
-                      ),
-                    ),
-                    SizedBox(
-                      width: 5.h,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          candidate['fullName'],
-                          style: TextStyle(
-                              fontSize: 18.sp, fontWeight: FontWeight.w400),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.center,
+                    padding: REdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color.fromARGB(159, 0, 0, 0),
+                          offset: Offset(0, 1),
+                          blurRadius: 1,
                         ),
-                        Text(
-                          candidate['fullAddress'].toString().substring(0,
-                              candidate['fullAddress'].toString().length - 9),
-                          style: TextStyle(
-                              fontSize: 12.sp, color: Color(0xff585858)),
-                        )
                       ],
+                      color: const Color.fromARGB(255, 248, 247, 247),
                     ),
-                  ],
+                    child: Text(
+                      style: TextStyle(
+                          fontSize: 16.sp, fontWeight: FontWeight.w400),
+                      candidate['party'],
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
-          SizedBox(height: 15.h),
-          Padding(
-            padding: REdgeInsets.only(left: 0.0),
-            child: Container(
-              child: Row(
+            SizedBox(
+              height: 10.h,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 18.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const CircleAvatar(
-                    maxRadius: 40,
-                    backgroundColor: Colors.red,
-                  ),
-                  SizedBox(
-                    width: 16.w,
-                  ),
-                  Container(
-                    height: 80,
-                    width: 80,
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 1),
-                      borderRadius: BorderRadius.circular(90),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        "MNA",
-                        style: TextStyle(
-                            fontSize: 25, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 16.w,
-                  ),
-                  Container(
-                    height: 80,
-                    width: 80,
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 1),
-                      borderRadius: BorderRadius.circular(90),
-                    ),
-                    child: Center(
-                      child: Text(
-                        extractTextInBrackets(candidate['party']),
-                        style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 16.w,
-                  ),
-                  Padding(
-                    padding: REdgeInsets.only(left: 22),
-                    child: Row(
-                      children: [
-                        Column(
-                          children: [
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Image.asset(
-                                  _userVotes.contains(candidate['uid'])
-                                      ? 'assets/voteIcons/VotedCircle.png'
-                                      : 'assets/voteIcons/NotVotedCircle.png',
-                                ),
-                                GestureDetector(
-                                  onTap: !_userVotes.contains(candidate['uid'])
-                                      ? () =>
-                                          _voteForCandidate(candidate['uid'])
-                                      : null,
-                                  child: Image.asset(
-                                    _userVotes.contains(candidate['uid'])
-                                        ? 'assets/voteIcons/VotedIcon.png'
-                                        : 'assets/voteIcons/NotVotedIcon.png',
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 3.h,
-                            ),
-                            GestureDetector(
-                              onTap: !_userVotes.contains(candidate['uid'])
-                                  ? () => _voteForCandidate(candidate['uid'])
-                                  : null,
-                              child: Image.asset(
-                                _userVotes.contains(candidate['uid'])
-                                    ? 'assets/voteIcons/voted.png'
-                                    : 'assets/voteIcons/Vote.png',
-                              ),
-                            ),
-                          ],
+                  Row(
+                    children: [
+                      Container(
+                        width: 84, // 80 for CircleAvatar + 2*2 for border width
+                        height: 84,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.blue,
+                            width: 2,
+                          ),
                         ),
-                      ],
-                    ),
+                        child: CircleAvatar(
+                          maxRadius: 40,
+                          backgroundImage: NetworkImage(candidate['image']),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 5.h,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            candidate['fullName'],
+                            style: TextStyle(
+                                fontSize: 18.sp, fontWeight: FontWeight.w400),
+                          ),
+                          Text(
+                            candidate['fullAddress'].toString().substring(0,
+                                candidate['fullAddress'].toString().length - 9),
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: const Color(0xff585858),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          )
-        ],
+            SizedBox(height: 15.h),
+            SizedBox(
+              width: 16.w,
+            ),
+            Padding(
+              padding: REdgeInsets.only(right: 22),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Center(
+                                  child: Text(
+                                    "Confirm Vote?",
+                                  ),
+                                ),
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                        side: const BorderSide(
+                                          width: 1,
+                                          color: Colors.grey,
+                                        ),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(10.r),
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.transparent,
+                                      elevation: 0,
+                                    ),
+                                    child: const Text(
+                                      "Cancel",
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      // Register vote and update UI
+                                      _voteForCandidate(candidate['uid']);
+                                      Navigator.pop(context);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 39, 176, 250),
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(10.r),
+                                        ),
+                                      ),
+                                    ),
+                                    child: const Text("Vote"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _userVotes.contains(candidate['uid'])
+                              ? Colors
+                                  .green // Change to a different color after voting
+                              : const Color(0xff2F5F98), // Initial button color
+                          foregroundColor: _userVotes.contains(candidate['uid'])
+                              ? Colors.white // Change text color after voting
+                              : Colors.white,
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.r),
+                            ),
+                          ),
+                        ),
+                        child: Text(
+                          _userVotes.contains(candidate['uid'])
+                              ? "Voted"
+                              : "Vote",
+                          style: TextStyle(
+                            color: _userVotes.contains(candidate['uid'])
+                                ? Colors.white
+                                : Colors.white, // Optional text color
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

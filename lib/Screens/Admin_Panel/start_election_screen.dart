@@ -102,6 +102,13 @@ class _StartElectionScreenState extends State<StartElectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: () {
+                CandidateServices().signOut(context);
+              },
+              icon: const Icon(Icons.logout)),
+        ],
         title: const Text("Votifiy"),
         centerTitle: true,
       ),

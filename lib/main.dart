@@ -34,7 +34,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       builder: (context, child) => MaterialApp(
-        theme: ThemeData(scaffoldBackgroundColor: Colors.white),
+        theme: ThemeData(
+          scaffoldBackgroundColor: Colors.white,
+          dialogBackgroundColor: Colors.white,
+        ),
         debugShowCheckedModeBanner: false,
         home: const AuthGate(),
       ),
