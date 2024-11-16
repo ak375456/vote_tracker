@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -148,9 +149,6 @@ class _MnaVoteScreenState extends State<MnaVoteScreen> {
   }
 
   Widget _buildCandidateCard(Map<String, dynamic> candidate) {
-    final isFromUserDistrict = candidate['district'] == widget.userDistrict;
-    final partyFlagPath = partyFlags[candidate['party']] ?? '';
-
     return Padding(
       padding: REdgeInsets.symmetric(horizontal: 8.0),
       child: Container(
@@ -259,52 +257,78 @@ class _MnaVoteScreenState extends State<MnaVoteScreen> {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Center(
-                                  child: Text(
-                                    "Confirm Vote?",
-                                  ),
-                                ),
-                                actions: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        side: const BorderSide(
-                                          width: 1,
-                                          color: Colors.grey,
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(10.r),
-                                        ),
-                                      ),
-                                      backgroundColor: Colors.transparent,
-                                      elevation: 0,
-                                    ),
-                                    child: const Text(
-                                      "Cancel",
-                                      style: TextStyle(color: Colors.grey),
+                              return Stack(
+                                children: [
+                                  // Frosted glass effect for the background
+                                  BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 5.0, sigmaY: 5.0),
+                                    child: Container(
+                                      color: Colors.white.withOpacity(
+                                          0.2), // Slight dark overlay
                                     ),
                                   ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      // Register vote and update UI
-                                      _voteForCandidate(candidate['uid']);
-                                      Navigator.pop(context);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color.fromARGB(
-                                          255, 39, 176, 250),
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(10.r),
-                                        ),
+                                  // Original AlertDialog
+                                  AlertDialog(
+                                    actionsAlignment: MainAxisAlignment.center,
+                                    title: Center(
+                                      child: Text(
+                                        "Confirm Vote?",
+                                        style: TextStyle(fontSize: 20.sp),
                                       ),
                                     ),
-                                    child: const Text("Vote"),
+                                    actions: [
+                                      SizedBox(
+                                        width: 100.w,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            shape: const RoundedRectangleBorder(
+                                              side: BorderSide(
+                                                width: 1,
+                                                color: Colors.grey,
+                                              ),
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(10),
+                                              ),
+                                            ),
+                                            backgroundColor: Colors.transparent,
+                                            elevation: 0,
+                                          ),
+                                          child: const Text(
+                                            "Cancel",
+                                            style:
+                                                TextStyle(color: Colors.grey),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 16.w,
+                                      ),
+                                      SizedBox(
+                                        width: 100.w,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            // Register vote and update UI
+                                            _voteForCandidate(candidate['uid']);
+                                            Navigator.pop(context);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color(0xff2d8bba),
+                                            foregroundColor: Colors.white,
+                                            shape: const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(10),
+                                              ),
+                                            ),
+                                          ),
+                                          child: const Text("Vote"),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               );

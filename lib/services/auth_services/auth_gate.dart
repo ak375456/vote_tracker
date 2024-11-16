@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:vote_tracker/Screens/Admin_Panel/admin_first_screen.dart';
 import 'package:vote_tracker/Screens/Admin_Panel/admin_screen_bottom_nav_holder.dart';
 import 'package:vote_tracker/Screens/OnBoardingScreen/boarding_screen.dart';
 import 'package:vote_tracker/Screens/candidate_screens/candidate_homescreen.dart';

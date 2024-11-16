@@ -226,7 +226,6 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
   }
 
   Widget _buildMPACandidateCard(Map<String, dynamic> candidate) {
-    final isFromUserDistrict = candidate['district'] == widget.userDistrict;
     final partyFlagPath = partyFlags[candidate['party']] ?? '';
 
     return Container(

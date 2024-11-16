@@ -12,7 +12,6 @@ import 'package:vote_tracker/providers/password_provider.dart';
 import 'package:vote_tracker/reusable_widgets/date_of_birth_form_field.dart';
 import 'package:vote_tracker/reusable_widgets/my_button.dart';
 import 'package:vote_tracker/reusable_widgets/my_form.dart';
-import 'package:vote_tracker/reusable_widgets/two_circles.dart';
 import 'package:vote_tracker/services/candidate_services/candidate_services.dart';
 
 class RegisterCandidate extends StatefulWidget {
