@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:vote_tracker/constants.dart';
+import 'dart:ui';
 
 class MpaVoteScreen extends StatefulWidget {
   final String userDistrict;
@@ -205,7 +206,7 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
                     onRefresh: _refreshData,
                     child: ListView(
                       children: candidates
-                          .map((candidate) => _buildMPACandidateCard(candidate))
+                          .map((candidate) => _buildCandidateCard(candidate))
                           .toList(),
                     ),
                   );
@@ -225,207 +226,243 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
     );
   }
 
-  Widget _buildMPACandidateCard(Map<String, dynamic> candidate) {
-    final partyFlagPath = partyFlags[candidate['party']] ?? '';
-
-    return Container(
-      margin: REdgeInsets.symmetric(vertical: 18),
-      padding: REdgeInsets.only(bottom: 11),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          width: 1.w,
-          color: const Color.fromARGB(120, 0, 0, 0),
+  Widget _buildCandidateCard(Map<String, dynamic> candidate) {
+    return Padding(
+      padding: REdgeInsets.symmetric(horizontal: 8.0),
+      child: Container(
+        margin: REdgeInsets.symmetric(vertical: 18),
+        padding: REdgeInsets.only(bottom: 11),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            width: 1.w,
+            color: const Color.fromARGB(120, 0, 0, 0),
+          ),
         ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: REdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color.fromARGB(159, 0, 0, 0),
-                      offset: Offset(0, 1),
-                      blurRadius: 1,
-                    ),
-                  ],
-                  color: const Color.fromARGB(255, 192, 192, 192),
-                ),
-                child: Text(
-                  candidate['party'],
-                ),
-              ),
-              Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Image.asset(partyFlagPath),
-              )
-            ],
-          ),
-          SizedBox(
-            height: 10.h,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 18.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      maxRadius: 40,
-                      backgroundImage: NetworkImage(
-                        candidate['image'],
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.center,
+                    padding: REdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color.fromARGB(159, 0, 0, 0),
+                          offset: Offset(0, 1),
+                          blurRadius: 1,
+                        ),
+                      ],
+                      color: const Color.fromARGB(255, 248, 247, 247),
+                    ),
+                    child: Text(
+                      style: TextStyle(
+                          fontSize: 16.sp, fontWeight: FontWeight.w400),
+                      candidate['party'],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 10.h,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 18.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 84, // 80 for CircleAvatar + 2*2 for border width
+                        height: 84,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.blue,
+                            width: 2,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          maxRadius: 40,
+                          backgroundImage: NetworkImage(candidate['image']),
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 5.h,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          candidate['fullName'],
-                          style: TextStyle(
-                              fontSize: 18.sp, fontWeight: FontWeight.w400),
-                        ),
-                        Text(
-                          candidate['fullAddress'].toString().substring(0,
-                              candidate['fullAddress'].toString().length - 9),
-                          style: TextStyle(
-                              fontSize: 12.sp, color: Color(0xff585858)),
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                      SizedBox(
+                        width: 5.h,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            candidate['fullName'],
+                            style: TextStyle(
+                                fontSize: 18.sp, fontWeight: FontWeight.w400),
+                          ),
+                          Text(
+                            candidate['fullAddress'].toString().substring(0,
+                                candidate['fullAddress'].toString().length - 9),
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: const Color(0xff585858),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          SizedBox(height: 15.h),
-          Padding(
-            padding: REdgeInsets.only(left: 0.0),
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  maxRadius: 40,
-                  backgroundColor: Colors.red,
-                ),
-                SizedBox(
-                  width: 16.w,
-                ),
-                Container(
-                  height: 80,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    border: Border.all(width: 1),
-                    borderRadius: BorderRadius.circular(90),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "MPA", // Change for MPA logic
-                      style:
-                          TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 16.w,
-                ),
-                Container(
-                  height: 80,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    border: Border.all(width: 1),
-                    borderRadius: BorderRadius.circular(90),
-                  ),
-                  child: Center(
-                    child: Text(
-                      extractTextInBrackets(candidate['party']),
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 16.w,
-                ),
-                Padding(
-                  padding: REdgeInsets.only(left: 22),
-                  child: Expanded(
-                    child: Row(
-                      children: [
-                        Column(
-                          children: [
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Image.asset(
-                                  _userVotes.contains(candidate['uid'])
-                                      ? 'assets/voteIcons/VotedCircle.png'
-                                      : 'assets/voteIcons/NotVotedCircle.png',
-                                ),
-                                GestureDetector(
-                                  onTap: !_userVotes.contains(candidate['uid'])
-                                      ? () => _voteForMPACandidate(
-                                          candidate['uid']) // MPA logic here
-                                      : null,
-                                  child: Image.asset(
-                                    _userVotes.contains(candidate['uid'])
-                                        ? 'assets/voteIcons/VotedIcon.png'
-                                        : 'assets/voteIcons/NotVotedIcon.png',
+            SizedBox(height: 15.h),
+            SizedBox(
+              width: 16.w,
+            ),
+            Padding(
+              padding: REdgeInsets.only(right: 22),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Stack(
+                                children: [
+                                  // Frosted glass effect for the background
+                                  BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 5.0, sigmaY: 5.0),
+                                    child: Container(
+                                      color: Colors.white.withOpacity(
+                                          0.2), // Slight dark overlay
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  // Original AlertDialog
+                                  AlertDialog(
+                                    actionsAlignment: MainAxisAlignment.center,
+                                    title: Center(
+                                      child: Text(
+                                        "Confirm Vote?",
+                                        style: TextStyle(fontSize: 20.sp),
+                                      ),
+                                    ),
+                                    actions: [
+                                      SizedBox(
+                                        width: 100.w,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            shape: const RoundedRectangleBorder(
+                                              side: BorderSide(
+                                                width: 1,
+                                                color: Colors.grey,
+                                              ),
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(10),
+                                              ),
+                                            ),
+                                            backgroundColor: Colors.transparent,
+                                            elevation: 0,
+                                          ),
+                                          child: const Text(
+                                            "Cancel",
+                                            style:
+                                                TextStyle(color: Colors.grey),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 16.w,
+                                      ),
+                                      SizedBox(
+                                        width: 100.w,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            // Register vote and update UI
+                                            _voteForMPACandidate(
+                                                candidate['uid']);
+                                            Navigator.pop(context);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color(0xff2d8bba),
+                                            foregroundColor: Colors.white,
+                                            shape: const RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(10),
+                                              ),
+                                            ),
+                                          ),
+                                          child: const Text("Vote"),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _userVotes.contains(candidate['uid'])
+                              ? Colors
+                                  .green // Change to a different color after voting
+                              : const Color(0xff2F5F98), // Initial button color
+                          foregroundColor: _userVotes.contains(candidate['uid'])
+                              ? Colors.white // Change text color after voting
+                              : Colors.white,
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.r),
                             ),
-                            SizedBox(
-                              height: 3.h,
-                            ),
-                            GestureDetector(
-                              onTap: !_userVotes.contains(candidate['uid'])
-                                  ? () => _voteForMPACandidate(
-                                      candidate['uid']) // MPA voting logic
-                                  : null,
-                              child: Image.asset(
-                                _userVotes.contains(candidate['uid'])
-                                    ? 'assets/voteIcons/voted.png'
-                                    : 'assets/voteIcons/Vote.png',
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ],
-                    ),
+                        child: Text(
+                          _userVotes.contains(candidate['uid'])
+                              ? "Voted"
+                              : "Vote",
+                          style: TextStyle(
+                            color: _userVotes.contains(candidate['uid'])
+                                ? Colors.white
+                                : Colors.white, // Optional text color
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }
-}
 
-String extractTextInBrackets(String text) {
-  final RegExp regex = RegExp(r'\(([^)]+)\)');
-  final match = regex.firstMatch(text);
-  return match != null ? match.group(1) ?? '' : '';
-}
+  String extractTextInBrackets(String text) {
+    final RegExp regex = RegExp(r'\(([^)]+)\)');
+    final match = regex.firstMatch(text);
+    return match != null ? match.group(1) ?? '' : '';
+  }
 
-const Map<String, String> partyFlags = {
-  'Pakistan Muslim League-Nawaz (PML-N)': 'assets/partyflags/PML-N.png',
-  'Pakistan Tehreek-e-Insaf (PTI)': 'assets/partyflags/PTI.png',
-  "Pakistan Peoples Party (PPP)": 'assets/partyflags/PPPP.png',
-  'Jamiat Ulema-e-Islam (F)': 'assets/partyflags/JUI.png',
-  'Tehreek-e-Labbaik Pakistan (TLP)': 'assets/partyflags/TLP.png'
-  // Add more party mappings
-};
+  static const Map<String, String> partyFlags = {
+    'Pakistan Muslim League-Nawaz (PML-N)': 'assets/partyflags/PML-N.png',
+    'Pakistan Tehreek-e-Insaf (PTI)': 'assets/partyflags/PTI.png',
+    "Pakistan Peoples Party (PPP)": 'assets/partyflags/PPPP.png',
+    'Jamiat Ulema-e-Islam (F)': 'assets/partyflags/JUI.png',
+    'Tehreek-e-Labbaik Pakistan (TLP)': 'assets/partyflags/TLP.png'
+    // Add more party mappings
+  };
+}
