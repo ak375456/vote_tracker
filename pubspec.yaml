@@ -53,6 +53,8 @@ dependencies:
   fl_chart: ^0.68.0
   flutter_native_splash: ^2.4.1
   intl: ^0.19.0
+  video_player: ^2.9.2
+  flutter_svg: ^2.0.15
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +85,9 @@ flutter:
     - assets/partyflags/
     - assets/voteIcons/
     - assets/voteIcons/voted.png
+    - assets/video/
+    - assets/video/video_2.mp4
+    - assets/video/video_3.mp4
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

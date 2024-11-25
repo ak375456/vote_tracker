@@ -456,13 +456,4 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
     final match = regex.firstMatch(text);
     return match != null ? match.group(1) ?? '' : '';
   }
-
-  static const Map<String, String> partyFlags = {
-    'Pakistan Muslim League-Nawaz (PML-N)': 'assets/partyflags/PML-N.png',
-    'Pakistan Tehreek-e-Insaf (PTI)': 'assets/partyflags/PTI.png',
-    "Pakistan Peoples Party (PPP)": 'assets/partyflags/PPPP.png',
-    'Jamiat Ulema-e-Islam (F)': 'assets/partyflags/JUI.png',
-    'Tehreek-e-Labbaik Pakistan (TLP)': 'assets/partyflags/TLP.png'
-    // Add more party mappings
-  };
 }

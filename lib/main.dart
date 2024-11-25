@@ -37,6 +37,9 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           scaffoldBackgroundColor: Colors.white,
           dialogBackgroundColor: Colors.white,
+          appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
+          bottomNavigationBarTheme:
+              const BottomNavigationBarThemeData(backgroundColor: Colors.white),
         ),
         debugShowCheckedModeBanner: false,
         home: const AuthGate(),
