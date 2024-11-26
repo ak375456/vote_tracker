@@ -35,12 +35,13 @@ class MyApp extends StatelessWidget {
     return ScreenUtilInit(
       builder: (context, child) => MaterialApp(
         theme: ThemeData(
-          scaffoldBackgroundColor: Colors.white,
-          dialogBackgroundColor: Colors.white,
-          appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
-          bottomNavigationBarTheme:
-              const BottomNavigationBarThemeData(backgroundColor: Colors.white),
-        ),
+            scaffoldBackgroundColor: Colors.white,
+            dialogBackgroundColor: Colors.white,
+            appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                backgroundColor: Colors.white),
+            bottomSheetTheme:
+                BottomSheetThemeData(backgroundColor: Colors.white)),
         debugShowCheckedModeBanner: false,
         home: const AuthGate(),
       ),

@@ -185,15 +185,40 @@ class _HomeScreenState extends State<HomeScreen> {
           highlightElevation: 0,
           splashColor: Colors.transparent,
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("AI BUTTON CLICKED"),
-              ),
-            );
+            showModalBottomSheet<void>(
+                isDismissible: true,
+                isScrollControlled: true,
+                useSafeArea: true,
+                showDragHandle: true,
+                context: context,
+                builder: (BuildContext context) {
+                  return Container(
+                      constraints: const BoxConstraints(
+                        minWidth: double.infinity,
+                        minHeight: double.infinity,
+                      ),
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: aiScreen());
+                });
           },
           child: SvgPicture.asset("assets/fab1.svg"),
         ),
       ),
     );
   }
+}
+
+Widget aiScreen() {
+  return Column(
+    children: [
+      AppBar(
+        title: const Text(
+          "Votify",
+          style: TextStyle(color: Colors.grey),
+        ),
+        centerTitle: true,
+      ),
+    ],
+  );
 }
