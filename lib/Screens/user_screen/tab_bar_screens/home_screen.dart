@@ -1,10 +1,15 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
+import 'package:vote_tracker/services/api_services/api_services.dart';
 import 'package:vote_tracker/services/auth_services/auth_service.dart';
+
+import '../../../services/api_services/ai_api_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,6 +23,11 @@ class _HomeScreenState extends State<HomeScreen> {
   late VideoPlayerController _controller2;
   late VideoPlayerController _controller3;
   late VideoPlayerController _controller4;
+
+  final TextEditingController _controller = TextEditingController();
+  final List<Map<String, String>> messages = []; // To store chat messages
+  Future<ChatGPTAPIModel>? futureBuilder;
+  bool isTyping = false;
 
   @override
   void initState() {
@@ -41,14 +51,35 @@ class _HomeScreenState extends State<HomeScreen> {
       });
   }
 
-  @override
-  void dispose() {
-    // Dispose all controllers
-    _controller1.dispose();
-    _controller2.dispose();
-    _controller3.dispose();
-    _controller4.dispose();
-    super.dispose();
+  void sendMessage() {
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+    final userPrompt = _controller.text.trim();
+
+    if (userPrompt.isNotEmpty) {
+      setState(() {
+        messages.add({'role': 'user', 'content': userPrompt});
+        isTyping = true; // Show loading indicator
+      });
+
+      _controller.clear(); // Clear the text field immediately
+
+      ChatGptApiService().sendChatGptRequest(userPrompt).then((response) {
+        if (!mounted) return; // Check if widget is still mounted
+        setState(() {
+          messages.add({
+            'role': 'ai',
+            'content': response.result ?? "No response from AI",
+          });
+          isTyping = false; // Hide loading indicator
+        });
+      }).catchError((error) {
+        if (!mounted) return; // Check if widget is still mounted
+        setState(() {
+          messages.add({'role': 'ai', 'content': 'Error: $error'});
+          isTyping = false; // Hide loading indicator
+        });
+      });
+    }
   }
 
   Widget buildVideoPlayer(VideoPlayerController controller) {
@@ -186,39 +217,185 @@ class _HomeScreenState extends State<HomeScreen> {
           splashColor: Colors.transparent,
           onPressed: () {
             showModalBottomSheet<void>(
-                isDismissible: true,
-                isScrollControlled: true,
-                useSafeArea: true,
-                showDragHandle: true,
-                context: context,
-                builder: (BuildContext context) {
-                  return Container(
-                      constraints: const BoxConstraints(
-                        minWidth: double.infinity,
-                        minHeight: double.infinity,
+              isDismissible: true,
+              isScrollControlled: true,
+              useSafeArea: true,
+              showDragHandle: true,
+              context: context,
+              builder: (BuildContext context) {
+                return Container(
+                  constraints: const BoxConstraints(
+                    minWidth: double.infinity,
+                    minHeight: double.infinity,
+                  ),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: Column(
+                    children: [
+                      AppBar(
+                        title: const Text(
+                          "Votify",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        centerTitle: true,
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
                       ),
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      child: aiScreen());
-                });
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: messages.length +
+                              (isTyping ? 1 : 0), // Add 1 if typing
+                          itemBuilder: (context, index) {
+                            if (index == messages.length) {
+                              // Show loading indicator at the end
+                              return Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(
+                                    horizontal: 16.w,
+                                    vertical: 8.h,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      SizedBox(
+                                          height: 25,
+                                          width: 25,
+                                          child: Lottie.asset(
+                                              "assets/aiani.json")),
+                                      SizedBox(width: 8.w),
+                                      Text(
+                                        "Typing...",
+                                        style: TextStyle(
+                                            fontSize: 14.sp,
+                                            color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+
+                            final message = messages[index];
+                            final isUser = message['role'] == 'user';
+
+                            return Align(
+                              alignment: isUser
+                                  ? Alignment.centerLeft
+                                  : Alignment.centerRight,
+                              child: Container(
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: 16.w,
+                                  vertical: 8.h,
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.w,
+                                  vertical: 12.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isUser
+                                      ? const Color(0xffD7D7D7)
+                                      : const Color(0xff2D8BBA),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(12.r),
+                                    topRight: Radius.circular(12.r),
+                                    bottomLeft: isUser
+                                        ? const Radius.circular(0)
+                                        : Radius.circular(12.r),
+                                    bottomRight: isUser
+                                        ? Radius.circular(12.r)
+                                        : const Radius.circular(0),
+                                  ),
+                                ),
+                                child: Text(
+                                  message['content']!,
+                                  style: TextStyle(fontSize: 14.sp),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      futureBuilder == null
+                          ? const SizedBox.shrink()
+                          : FutureBuilder<ChatGPTAPIModel>(
+                              future: futureBuilder,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: CircularProgressIndicator(),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "Failed to fetch response. Please try again.",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  );
+                                } else {
+                                  ChatGPTAPIModel data = snapshot.data!;
+                                  log(data.result.toString());
+
+                                  return const SizedBox
+                                      .shrink(); // Response will already be in the `messages`
+                                }
+                              },
+                            ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                          top: 8.h,
+                        ),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.w, vertical: 8.h),
+                          decoration: BoxDecoration(
+                            border: Border(
+                                top: BorderSide(color: Colors.grey[300]!)),
+                            color: Colors.white,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _controller,
+                                  decoration: const InputDecoration(
+                                    hintText: 'How can I help you?',
+                                    border: InputBorder.none,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.send, color: Colors.blue),
+                                onPressed: sendMessage,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
           },
           child: SvgPicture.asset("assets/fab1.svg"),
         ),
       ),
     );
   }
-}
 
-Widget aiScreen() {
-  return Column(
-    children: [
-      AppBar(
-        title: const Text(
-          "Votify",
-          style: TextStyle(color: Colors.grey),
-        ),
-        centerTitle: true,
-      ),
-    ],
-  );
+  @override
+  void dispose() {
+    // Dispose all controllers
+    _controller1.dispose();
+    _controller2.dispose();
+    _controller3.dispose();
+    _controller4.dispose();
+    super.dispose();
+  }
 }
