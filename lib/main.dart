@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
             bottomNavigationBarTheme: const BottomNavigationBarThemeData(
                 backgroundColor: Colors.white),
             bottomSheetTheme:
-                BottomSheetThemeData(backgroundColor: Colors.white)),
+                const BottomSheetThemeData(backgroundColor: Colors.white)),
         debugShowCheckedModeBanner: false,
         home: const AuthGate(),
       ),
