@@ -169,9 +169,6 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("MPA Voting Screen"),
-      ),
       body: Stack(
         children: [
           FutureBuilder<List<Map<String, dynamic>>>(

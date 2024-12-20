@@ -44,137 +44,142 @@ class _LoginScreenState extends State<LoginScreen> {
     final passwordProvider = Provider.of<ShowPassword>(context, listen: true);
     // final authService = Provider.of<AuthServices>(context, listen: false);
     return Scaffold(
-      body: Padding(
-        padding: REdgeInsets.symmetric(horizontal: 16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.asset("assets/votify.png"),
-              SizedBox(
-                height: 45.h,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: REdgeInsets.symmetric(horizontal: 16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        InkWell(
-                          onTap: () {},
-                          child: Text(
-                            "Sign In (Voter)",
-                            style: TextStyle(
-                                fontSize: 20.sp,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.w400),
+                  Image.asset("assets/votify.png"),
+                  SizedBox(
+                    height: 45.h,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            InkWell(
+                              onTap: () {},
+                              child: Text(
+                                "Sign In (Voter)",
+                                style: TextStyle(
+                                    fontSize: 20.sp,
+                                    letterSpacing: 0.0,
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            ),
+                            const Divider(
+                              thickness: 5,
+                              color: Colors.black,
+                            ),
+                          ],
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const CandidateLoginScreen(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          "Sign In (agent)",
+                          style: TextStyle(
+                            fontSize: 20.sp,
+                            letterSpacing: 0.0,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
-                        const Divider(
-                          thickness: 5,
-                          color: Colors.black,
-                        ),
-                      ],
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CandidateLoginScreen(),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      "Sign In (Candidate)",
-                      style: TextStyle(
-                        fontSize: 20.sp,
-                        letterSpacing: 0.0,
-                        fontWeight: FontWeight.w400,
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-              MyTextFormField(
-                controller: emailController,
-                labelText: email,
-                hintText: emailHelperText,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
-                      .hasMatch(value)) {
-                    return 'Please enter a valid email address';
-                  }
+                  MyTextFormField(
+                    controller: emailController,
+                    labelText: email,
+                    hintText: emailHelperText,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
+                          .hasMatch(value)) {
+                        return 'Please enter a valid email address';
+                      }
 
-                  return null;
-                },
-              ),
-              MyTextFormField(
-                controller: passwordController,
-                labelText: password,
-                hintText: passwordHelperText,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  if (value.length < 5) {
-                    return 'Password should be greater than 5 character';
-                  }
-                  return null;
-                },
-                suffixIcon: passwordProvider.isObsecureText
-                    ? Icons.lock
-                    : Icons.lock_open_outlined,
-                onSuffixIconPressed: () {
-                  passwordProvider
-                      .showPassword(!passwordProvider.isObsecureText);
-                },
-                hideText: passwordProvider.isObsecureText,
-              ),
-              SizedBox(
-                height: ScreenUtil().setHeight(48),
-              ),
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SignUp(),
-                          ));
+                      return null;
                     },
-                    child: Text(
-                      "Don't have an account ?",
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        color: const Color(0x58585880),
-                      ),
-                    ),
+                  ),
+                  MyTextFormField(
+                    controller: passwordController,
+                    labelText: password,
+                    hintText: passwordHelperText,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 5) {
+                        return 'Password should be greater than 5 character';
+                      }
+                      return null;
+                    },
+                    suffixIcon: passwordProvider.isObsecureText
+                        ? Icons.lock
+                        : Icons.lock_open_outlined,
+                    onSuffixIconPressed: () {
+                      passwordProvider
+                          .showPassword(!passwordProvider.isObsecureText);
+                    },
+                    hideText: passwordProvider.isObsecureText,
                   ),
                   SizedBox(
-                    width: 10.w,
+                    height: ScreenUtil().setHeight(48),
                   ),
-                  isLoading
-                      ? Center(
-                          child: SpinKitCircle(
-                            // Using a CircularProgressIndicator for loading indication
-                            color: darkGreenColor,
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SignUp(),
+                              ));
+                        },
+                        child: Text(
+                          "Don't have an account ?",
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: const Color(0x58585880),
                           ),
-                        )
-                      : MyButton(
-                          buttonText: "Sign In",
-                          buttonFunction: logInFunction,
                         ),
+                      ),
+                      SizedBox(
+                        width: 10.w,
+                      ),
+                      isLoading
+                          ? Center(
+                              child: SpinKitCircle(
+                                // Using a CircularProgressIndicator for loading indication
+                                color: darkGreenColor,
+                              ),
+                            )
+                          : MyButton(
+                              buttonText: "Sign In",
+                              buttonFunction: logInFunction,
+                            ),
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),

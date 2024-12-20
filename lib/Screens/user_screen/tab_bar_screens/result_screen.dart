@@ -151,6 +151,94 @@ class _ResultScreenState extends State<ResultScreen> {
     }
   }
 
+  TextEditingController districtController = TextEditingController();
+  String? districtName;
+  String? mnaWinnerName;
+  String? mpaWinnerName;
+
+  Future<Map<String, String>> fetchWinners(String districtName) async {
+    // Step 1: Fetch all candidates to map candidateId to district and name
+    final candidatesSnapshot =
+        await FirebaseFirestore.instance.collection('Candidates').get();
+    Map<String, Map<String, String>> candidatesMap = {};
+
+    for (var doc in candidatesSnapshot.docs) {
+      final data = doc.data();
+      candidatesMap[doc.id] = {
+        'district': data['district'],
+        'name': data['fullName'], // Correct field for name
+        'role': data['candidateRole'],
+      };
+      print(
+          "Candidate ID: ${doc.id}, District: ${data['district']}, Role: ${data['candidateRole']}, Name: ${data['fullName']}");
+    }
+
+    // Step 2: Fetch all votes and filter by district
+    final votesSnapshot =
+        await FirebaseFirestore.instance.collection('votes').get();
+    Map<String, int> mnaVotes = {};
+    Map<String, int> mpaVotes = {};
+
+    for (var doc in votesSnapshot.docs) {
+      final data = doc.data();
+      String candidateId = data['candidateId'];
+      String candidateRole = data['candidateRole'];
+
+      // Check if candidate belongs to the given district
+      print(
+          "Vote for candidate: $candidateId, Role: $candidateRole, District: ${candidatesMap[candidateId]?['district']}");
+
+      if (candidatesMap[candidateId]?['district'] == districtName) {
+        print("Matching district for candidate ID: $candidateId");
+
+        if (candidateRole == "Minister Of National Assembly") {
+          mnaVotes[candidateId] = (mnaVotes[candidateId] ?? 0) + 1;
+          print("MNA Vote counted for candidate ID: $candidateId");
+        } else if (candidateRole == "Minister Of Provincial Assembly") {
+          mpaVotes[candidateId] = (mpaVotes[candidateId] ?? 0) + 1;
+          print("MPA Vote counted for candidate ID: $candidateId");
+        }
+      }
+    }
+
+    // Step 3: Find winners
+    String? mnaWinnerId = mnaVotes.entries.isNotEmpty
+        ? mnaVotes.entries.reduce((a, b) => a.value > b.value ? a : b).key
+        : null;
+    String? mpaWinnerId = mpaVotes.entries.isNotEmpty
+        ? mpaVotes.entries.reduce((a, b) => a.value > b.value ? a : b).key
+        : null;
+
+    // Map winner IDs to names (using fullName)
+    String mnaWinnerName =
+        mnaWinnerId != null && candidatesMap[mnaWinnerId] != null
+            ? candidatesMap[mnaWinnerId]!['name'] ?? "No Winner"
+            : "No Winner";
+    String mpaWinnerName =
+        mpaWinnerId != null && candidatesMap[mpaWinnerId] != null
+            ? candidatesMap[mpaWinnerId]!['name'] ?? "No Winner"
+            : "No Winner";
+
+    print("MNA Winner: $mnaWinnerName");
+    print("MPA Winner: $mpaWinnerName");
+
+    return {
+      'MNA': mnaWinnerName,
+      'MPA': mpaWinnerName,
+    };
+  }
+
+  void searchDistrict() async {
+    String districtName = districtController.text.trim();
+    if (districtName.isNotEmpty) {
+      Map<String, String> winners = await fetchWinners(districtName);
+      setState(() {
+        mnaWinnerName = winners['MNA']!;
+        mpaWinnerName = winners['MPA']!;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,37 +260,46 @@ class _ResultScreenState extends State<ResultScreen> {
             Padding(
               padding: REdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
               child: TextField(
+                controller: districtController,
                 decoration: InputDecoration(
-                  hintText: 'Search District',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: const BorderSide(color: Colors.blue),
+                  labelText: "Enter District Name",
+                  border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.search),
+                    onPressed: searchDistrict,
                   ),
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value.trim().toLowerCase();
-                  });
-                },
               ),
             ),
             SizedBox(height: 22.h),
-            Padding(
-              padding: REdgeInsets.symmetric(horizontal: 8.0),
-              child: const Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            if (mnaWinnerName != null && mpaWinnerName != null)
+              Column(
                 children: [
                   Text(
-                    "District result",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    "Winners",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
+                  SizedBox(height: 10),
+                  Text("MNA Winner: $mnaWinnerName",
+                      style: TextStyle(fontSize: 16, color: Colors.blue)),
+                  Text("MPA Winner: $mpaWinnerName",
+                      style: TextStyle(fontSize: 16, color: Colors.green)),
                 ],
+              )
+            else
+              Padding(
+                padding: REdgeInsets.symmetric(horizontal: 8.0),
+                child: const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "District result",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
-            ),
             SizedBox(height: 16.h),
             // Display both pie charts horizontally using Row
             Padding(

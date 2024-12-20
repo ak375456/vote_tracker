@@ -79,7 +79,7 @@ class _CandidateLoginScreenState extends State<CandidateLoginScreen> {
                         InkWell(
                           onTap: () {},
                           child: Text(
-                            "Sign In (Candidate)",
+                            "Sign In (agent)",
                             style: TextStyle(
                               fontSize: 20.sp,
                               letterSpacing: 0.0,
