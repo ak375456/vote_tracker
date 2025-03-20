@@ -51,9 +51,11 @@ class AuthGateState extends State<AuthGate> {
           return const CircularProgressIndicator();
         } else if (_user != null) {
           if (_isCandidate) {
-            return const CandidateHomeScreen();
+            return const VoteThroughAgentUser();
           } else if (_user!.uid == 'SSV3VhaghwNOa8RSJDavNCZmOtW2') {
             return const BottomNavBarOfAdmin();
+          } else if (_user!.uid == 'iV3XakRwk1MwAHynwC8DpBirtly1') {
+            return const VoteThroughAgentUser();
           } else {
             return const BottomNavBarOfApp();
           }

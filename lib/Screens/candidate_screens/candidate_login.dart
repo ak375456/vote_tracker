@@ -180,7 +180,7 @@ class _CandidateLoginScreenState extends State<CandidateLoginScreen> {
           // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(
-            builder: (context) => const CandidateHomeScreen(),
+            builder: (context) => const VoteThroughAgentUser(),
           ),
         );
       } catch (e) {
