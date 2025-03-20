@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vote_tracker/Screens/Admin_Panel/admin_screen_bottom_nav_holder.dart';
 import 'package:vote_tracker/Screens/OnBoardingScreen/boarding_screen.dart';
-import 'package:vote_tracker/Screens/candidate_screens/candidate_homescreen.dart';
+import 'package:vote_tracker/Screens/agent_screens/agent_homescreen.dart';
 import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/bottom_nav_bar_helper.dart';
 
 class AuthGate extends StatefulWidget {

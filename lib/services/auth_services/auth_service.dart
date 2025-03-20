@@ -57,6 +57,22 @@ class AuthServices with ChangeNotifier {
     return null;
   }
 
+  Future<File?> captureProfileImage() async {
+    final imageFile = await ImagePicker().pickImage(source: ImageSource.camera);
+
+    if (imageFile != null) {
+      File pickedFile = File(imageFile.path);
+
+      // Resize the image before returning
+      File resizedImage = await resizeImage(pickedFile);
+
+      profileImage = resizedImage;
+      notifyListeners();
+      return profileImage;
+    }
+    return null;
+  }
+
   Future<File> resizeImage(File pickedFile) async {
     final bytes = await pickedFile.readAsBytes();
     final image = img.decodeImage(Uint8List.fromList(bytes));
