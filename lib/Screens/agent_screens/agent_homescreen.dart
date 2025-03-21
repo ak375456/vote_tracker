@@ -1,10 +1,13 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:vote_tracker/Screens/user_screen/mna_mpa_tab_bar_holder/mna_mpa_tab_bar_holder.dart';
 import 'package:vote_tracker/constants.dart';
 import 'package:vote_tracker/reusable_widgets/date_of_birth_form_field.dart';
 import 'package:vote_tracker/reusable_widgets/my_button.dart';
@@ -303,9 +306,27 @@ class _VoteThroughAgentUserState extends State<VoteThroughAgentUser> {
                               fullNumber = countryCode + numberController.text;
                               String fullAddress =
                                   selectedDistrict! + provinceAndCountry!;
-                              log(fullNumber +
-                                  cnicController.text +
-                                  fullAddress);
+
+                              // Check if an election is active
+                              bool isElectionActive =
+                                  await checkIfElectionIsActive();
+
+                              if (isElectionActive) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MNAMPATabBarHolder(
+                                      userDistrict: selectedDistrict!,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          "No election is currently active.")),
+                                );
+                              }
                             }
                           },
                         ),
@@ -316,5 +337,20 @@ class _VoteThroughAgentUserState extends State<VoteThroughAgentUser> {
         ),
       ),
     );
+  }
+}
+
+Future<bool> checkIfElectionIsActive() async {
+  try {
+    var electionQuery = await FirebaseFirestore.instance
+        .collection('elections')
+        .where('startTime', isLessThanOrEqualTo: DateTime.now())
+        .where('endTime', isGreaterThanOrEqualTo: DateTime.now())
+        .get();
+
+    return electionQuery.docs.isNotEmpty;
+  } catch (e) {
+    log("Error checking election status: $e");
+    return false;
   }
 }
