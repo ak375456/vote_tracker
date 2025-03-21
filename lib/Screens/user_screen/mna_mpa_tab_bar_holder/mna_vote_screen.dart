@@ -101,6 +101,8 @@ class _MnaVoteScreenState extends State<MnaVoteScreen> {
     });
 
     try {
+      final isAgent = user.email != null && user.email!.contains("@agent");
+
       final voteSnapshot = await _firestore
           .collection('votes')
           .where('voterId', isEqualTo: user.uid)
@@ -131,6 +133,10 @@ class _MnaVoteScreenState extends State<MnaVoteScreen> {
         'candidateId': candidateId,
         'candidateRole': 'Minister Of National Assembly',
         'timestamp': FieldValue.serverTimestamp(),
+        if (isAgent) 'isVoteThroughAgent': true, // Store if vote is from agent
+        if (isAgent) 'agentId': user.uid, // Store agent's UID
+        if (isAgent)
+          'agentName': user.displayName ?? 'Unknown Agent', // Store agent name
       });
 
       setState(() {
@@ -138,7 +144,9 @@ class _MnaVoteScreenState extends State<MnaVoteScreen> {
       });
 
       Fluttertoast.showToast(
-          msg: 'Vote recorded successfully for MNA candidate: $candidateId');
+          msg: isAgent
+              ? 'Agent vote recorded successfully for MNA candidate: $candidateId'
+              : 'Vote recorded successfully for MNA candidate: $candidateId');
     } catch (e) {
       log('Error voting for candidate: $e');
     } finally {
@@ -314,6 +322,10 @@ class _MnaVoteScreenState extends State<MnaVoteScreen> {
                                             // Register vote and update UI
                                             _voteForCandidate(candidate['uid']);
                                             Navigator.pop(context);
+                                            ElevatedButton(
+                                              onPressed: () async {},
+                                              child: Text("Vote for MNA"),
+                                            );
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:

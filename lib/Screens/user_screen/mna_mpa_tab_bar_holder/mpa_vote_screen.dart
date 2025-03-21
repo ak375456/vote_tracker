@@ -104,6 +104,8 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
     });
 
     try {
+      final isAgent = user.email != null && user.email!.contains("@agent");
+
       // Check if the user has already voted for an MPA candidate
       final voteSnapshot = await _firestore
           .collection('votes')
@@ -140,6 +142,10 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
         'candidateId': candidateId,
         'candidateRole': 'Minister Of Provincial Assembly',
         'timestamp': FieldValue.serverTimestamp(),
+        if (isAgent) 'isVoteThroughAgent': true, // Mark vote as agent-submitted
+        if (isAgent) 'agentId': user.uid, // Store agent UID
+        if (isAgent)
+          'agentName': user.displayName ?? 'Unknown Agent', // Store agent name
       });
 
       // Update the state and refresh the UI
@@ -149,7 +155,9 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
       });
 
       Fluttertoast.showToast(
-          msg: 'Vote recorded successfully for MPA candidate: $candidateId');
+          msg: isAgent
+              ? 'Agent vote recorded successfully for MPA candidate: $candidateId'
+              : 'Vote recorded successfully for MPA candidate: $candidateId');
     } catch (e) {
       log('Error voting for MPA candidate: $e');
     } finally {
@@ -389,7 +397,12 @@ class _MpaVoteScreenState extends State<MpaVoteScreen> {
                                             // Register vote and update UI
                                             _voteForMPACandidate(
                                                 candidate['uid']);
+
                                             Navigator.pop(context);
+                                            ElevatedButton(
+                                              onPressed: () async {},
+                                              child: Text("Vote for MPA"),
+                                            );
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:
