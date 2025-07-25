@@ -5,9 +5,12 @@ import 'package:provider/provider.dart';
 import 'package:vote_tracker/Screens/agent_screens/agent_homescreen.dart';
 import 'package:vote_tracker/constants.dart';
 import 'package:vote_tracker/providers/password_provider.dart';
+import 'package:vote_tracker/providers/localization_provider.dart';
 import 'package:vote_tracker/reusable_widgets/my_button.dart';
 import 'package:vote_tracker/reusable_widgets/my_form.dart';
+import 'package:vote_tracker/reusable_widgets/language_toggle.dart';
 import 'package:vote_tracker/services/candidate_services/candidate_services.dart';
+import 'package:vote_tracker/util/app_localizations.dart';
 
 class CandidateLoginScreen extends StatefulWidget {
   const CandidateLoginScreen({super.key});
@@ -36,10 +39,16 @@ class _CandidateLoginScreenState extends State<CandidateLoginScreen> {
 
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
+  
   @override
   Widget build(BuildContext context) {
     final passwordProvider = Provider.of<ShowPassword>(context, listen: false);
+    final localizations = AppLocalizations.of(context);
+    
     return Scaffold(
+      appBar: AppBar(
+        actions: const [LanguageToggle()],
+      ),
       body: Padding(
         padding: REdgeInsets.symmetric(horizontal: 16.0),
         child: Form(
@@ -49,9 +58,7 @@ class _CandidateLoginScreenState extends State<CandidateLoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Image.asset("assets/votify.png"),
-              SizedBox(
-                height: 45.h,
-              ),
+              SizedBox(height: 45.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -63,11 +70,12 @@ class _CandidateLoginScreenState extends State<CandidateLoginScreen> {
                             Navigator.pop(context);
                           },
                           child: Text(
-                            "Sign In (Voter)",
+                            localizations.signInVoter,
                             style: TextStyle(
-                                fontSize: 20.sp,
-                                letterSpacing: 0.0,
-                                fontWeight: FontWeight.w400),
+                              fontSize: 20.sp,
+                              letterSpacing: 0.0,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ),
                       ],
@@ -79,7 +87,7 @@ class _CandidateLoginScreenState extends State<CandidateLoginScreen> {
                         InkWell(
                           onTap: () {},
                           child: Text(
-                            "Sign In (agent)",
+                            localizations.signInAgent,
                             style: TextStyle(
                               fontSize: 20.sp,
                               letterSpacing: 0.0,
@@ -98,31 +106,30 @@ class _CandidateLoginScreenState extends State<CandidateLoginScreen> {
               ),
               MyTextFormField(
                 controller: emailController,
-                labelText: email,
-                hintText: emailHelperText,
+                labelText: localizations.email,
+                hintText: localizations.emailHelperText,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
+                    return localizations.pleaseEnterEmail;
                   }
                   if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
                       .hasMatch(value)) {
-                    return 'Please enter a valid email address';
+                    return localizations.enterValidEmail;
                   }
-
                   return null;
                 },
                 prefixIcon: Icons.email,
               ),
               MyTextFormField(
                 controller: passwordController,
-                labelText: password,
-                hintText: passwordHelperText,
+                labelText: localizations.password,
+                hintText: localizations.passwordHelperText,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
+                    return localizations.pleaseEnterPassword;
                   }
                   if (value.length < 5) {
-                    return 'Password should be greater than 5 character';
+                    return localizations.passwordLengthValidation;
                   }
                   return null;
                 },
@@ -136,18 +143,15 @@ class _CandidateLoginScreenState extends State<CandidateLoginScreen> {
                 },
                 hideText: passwordProvider.isObsecureText,
               ),
-              SizedBox(
-                height: ScreenUtil().setHeight(48),
-              ),
+              SizedBox(height: ScreenUtil().setHeight(48)),
               isLoading
                   ? Center(
                       child: SpinKitCircle(
-                        // Using a CircularProgressIndicator for loading indication
                         color: darkGreenColor,
                       ),
                     )
                   : MyButton(
-                      buttonText: "Sign In",
+                      buttonText: localizations.signIn,
                       buttonFunction: logInFunction,
                     ),
             ],
@@ -158,38 +162,35 @@ class _CandidateLoginScreenState extends State<CandidateLoginScreen> {
   }
 
   void logInFunction() async {
-    final candidateServices =
-        Provider.of<CandidateServices>(context, listen: false);
+    final candidateServices = Provider.of<CandidateServices>(context, listen: false);
+    final localizations = AppLocalizations.of(context);
+    
     setState(() {
-      isLoading = true; // Set isLoading to true to show loading indicator
+      isLoading = true;
     });
+    
     if (_formKey.currentState!.validate()) {
-      // Perform signup process
       try {
         await candidateServices.signInWithEmailAndPassword(
           emailController.text.toString().trim(),
           passwordController.text.toString().trim(),
         );
-        // If signup successful, isLoading will remain true until this point
+        
         setState(() {
-          isLoading = false; // Set isLoading to false to hide loading indicator
+          isLoading = false;
         });
-        // Optionally, navigate to another screen upon successful signup
 
         Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(
             builder: (context) => const VoteThroughAgentUser(),
           ),
         );
       } catch (e) {
-        // Handle signup errors
         setState(() {
-          isLoading = false; // Set isLoading to false to hide loading indicator
+          isLoading = false;
         });
-        // Handle error, you can display an error message or perform other actions
-        print('Signup failed: $e');
+        print('${localizations.signupFailed}: $e');
       }
     } else {
       setState(() {

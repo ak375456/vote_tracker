@@ -1,3 +1,4 @@
+// 7. Localized Sign Up Screen
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -5,9 +6,12 @@ import 'package:provider/provider.dart';
 import 'package:vote_tracker/Screens/auth_screens/addtional_info_screen.dart';
 import 'package:vote_tracker/constants.dart';
 import 'package:vote_tracker/providers/password_provider.dart';
+import 'package:vote_tracker/providers/localization_provider.dart';
+import 'package:vote_tracker/reusable_widgets/language_toggle.dart';
 import 'package:vote_tracker/reusable_widgets/my_button.dart';
 import 'package:vote_tracker/reusable_widgets/my_form.dart';
 import 'package:vote_tracker/services/auth_services/auth_service.dart';
+import 'package:vote_tracker/util/app_localizations.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -17,13 +21,13 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  late TextEditingController emailController;
+  late TextEditingController cnicController;
   late TextEditingController passwordController;
   late TextEditingController confirmPasswordController;
 
   @override
   void initState() {
-    emailController = TextEditingController();
+    cnicController = TextEditingController();
     passwordController = TextEditingController();
     confirmPasswordController = TextEditingController();
     super.initState();
@@ -31,7 +35,7 @@ class _SignUpState extends State<SignUp> {
 
   @override
   void dispose() {
-    emailController.dispose();
+    cnicController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
@@ -42,10 +46,18 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    // final authservice = Provider.of<AuthServices>(context, listen: false);
     final passwordProvider = Provider.of<ShowPassword>(context, listen: true);
+    final localizationProvider = Provider.of<LocalizationProvider>(context);
+    final localizations = AppLocalizations.of(context);
+
     bool confirmPasswordHideIfPasswordHide = passwordProvider.isObsecureText;
+
     return Scaffold(
+      appBar: AppBar(
+        actions: const [
+          LanguageToggle(),
+        ],
+      ),
       body: Padding(
         padding: REdgeInsets.symmetric(horizontal: 16.0),
         child: Form(
@@ -61,7 +73,7 @@ class _SignUpState extends State<SignUp> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        createNewAccount.toUpperCase(),
+                        localizations.createNewAccount.toUpperCase(),
                         style: TextStyle(
                             fontSize: 16.sp,
                             letterSpacing: 1.5,
@@ -69,35 +81,30 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: ScreenUtil().setHeight(18),
-                  ),
+                  SizedBox(height: ScreenUtil().setHeight(18)),
                   MyTextFormField(
-                    controller: emailController,
-                    hintText: emailHelperText,
-                    labelText: email,
+                    controller: cnicController,
+                    hintText: localizations.enterCnicHint,
+                    labelText: localizations.cnicNumber,
+                    maxLength: 13,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
-                          .hasMatch(value)) {
-                        return 'Please enter a valid email address';
+                        return localizations.pleaseEnterCnic;
                       }
                       return null;
                     },
-                    prefixIcon: Icons.email,
+                    prefixIcon: Icons.badge,
                   ),
                   MyTextFormField(
                     controller: passwordController,
-                    labelText: password,
-                    hintText: passwordHelperText,
+                    labelText: localizations.password,
+                    hintText: localizations.passwordHelperText,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return localizations.pleaseEnterPassword;
                       }
                       if (value.length < 5) {
-                        return 'Password should be greater than 5 character';
+                        return localizations.passwordLengthValidation;
                       }
                       return null;
                     },
@@ -112,26 +119,24 @@ class _SignUpState extends State<SignUp> {
                     hideText: passwordProvider.isObsecureText,
                   ),
                   MyTextFormField(
-                    labelText: "Confirm password",
+                    labelText: localizations.confirmPassword,
                     prefixIcon: Icons.password,
                     hideText: confirmPasswordHideIfPasswordHide,
                     validator: (String? value) {
                       if (confirmPasswordController.text.isEmpty) {
-                        return 'Please confirm your password';
+                        return localizations.pleaseConfirmPassword;
                       }
 
                       if (confirmPasswordController.text !=
                           passwordController.text) {
                         confirmPasswordController.clear();
-                        return 'Passwords do not match';
+                        return localizations.passwordsDoNotMatch;
                       }
                       return null;
                     },
                     controller: confirmPasswordController,
                   ),
-                  SizedBox(
-                    height: ScreenUtil().setHeight(48),
-                  ),
+                  SizedBox(height: ScreenUtil().setHeight(48)),
                   Row(
                     children: [
                       TextButton(
@@ -139,7 +144,7 @@ class _SignUpState extends State<SignUp> {
                           Navigator.pop(context);
                         },
                         child: Text(
-                          "Already have an account?",
+                          localizations.alreadyHaveAccount,
                           style: TextStyle(
                             fontSize: 16.sp,
                             color: const Color(0x58585880),
@@ -149,12 +154,11 @@ class _SignUpState extends State<SignUp> {
                       isLoading
                           ? Center(
                               child: SpinKitCircle(
-                                // Using a CircularProgressIndicator for loading indication
                                 color: darkGreenColor,
                               ),
                             )
                           : MyButton(
-                              buttonText: signUp,
+                              buttonText: localizations.signUp,
                               buttonFunction: singUpFunction),
                     ],
                   ),
@@ -169,58 +173,39 @@ class _SignUpState extends State<SignUp> {
 
   void singUpFunction() async {
     final authService = Provider.of<AuthServices>(context, listen: false);
+    final localizations = AppLocalizations.of(context);
+
     setState(() {
-      isLoading = true; // Set isLoading to true to show loading indicator
+      isLoading = true;
     });
+
     if (_formKey.currentState!.validate()) {
-      // Perform signup process
       try {
         await authService.createUserWithEmailAndPassword(
-          email: emailController.text.toString().trim(),
+          email: "${cnicController.text.trim()}@votify.pk",
           password: passwordController.text.toString().trim(),
         );
-        // If signup successful, isLoading will remain true until this point
+
         setState(() {
-          isLoading = false; // Set isLoading to false to hide loading indicator
+          isLoading = false;
         });
-        // Optionally, navigate to another screen upon successful signup
+
         Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(
             builder: (context) => const AdditionalInformationScreen(),
           ),
         );
       } catch (e) {
-        // Handle signup errors
         setState(() {
-          isLoading = false; // Set isLoading to false to hide loading indicator
+          isLoading = false;
         });
-        // Handle error, you can display an error message or perform other actions
+        print('${localizations.signupFailed}: $e');
       }
     } else {
-      // If form validation fails, keep isLoading as true to keep showing loading indicator
       setState(() {
         isLoading = false;
       });
     }
   }
-
-//   void signup() async {
-//     final authservice = Provider.of<AuthServices>(context, listen: false);
-//     try {
-//       await authservice.createUserWithEmailAndPassword(
-//           email: emailController.text.toString().trim(),
-//           password: passwordController.text.toString().trim());
-//       Navigator.pushReplacement(
-//         context,
-//         MaterialPageRoute(
-//           builder: (context) => const HomeScreen(),
-//         ),
-//       );
-//     } catch (e) {
-//       log();
-//     }
-//   }
-// }
 }

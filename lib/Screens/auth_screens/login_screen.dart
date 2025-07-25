@@ -7,10 +7,13 @@ import 'package:vote_tracker/Screens/auth_screens/sign_up_screen.dart';
 import 'package:vote_tracker/Screens/agent_screens/agent_login.dart';
 import 'package:vote_tracker/Screens/user_screen/tab_bar_screens/bottom_nav_bar_helper.dart';
 import 'package:vote_tracker/constants.dart';
+import 'package:vote_tracker/providers/localization_provider.dart';
 import 'package:vote_tracker/providers/password_provider.dart';
+import 'package:vote_tracker/reusable_widgets/language_toggle.dart';
 import 'package:vote_tracker/reusable_widgets/my_button.dart';
 import 'package:vote_tracker/reusable_widgets/my_form.dart';
 import 'package:vote_tracker/services/auth_services/auth_service.dart';
+import 'package:vote_tracker/util/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -39,11 +42,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     final passwordProvider = Provider.of<ShowPassword>(context, listen: true);
-    // final authService = Provider.of<AuthServices>(context, listen: false);
+    final localizationProvider = Provider.of<LocalizationProvider>(context);
+    final localizations = AppLocalizations.of(context);
+
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          const LanguageToggle(),
+        ],
+      ),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -54,10 +65,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // Language Toggle at the top
+
+                  SizedBox(height: 20.h),
+
                   Image.asset("assets/votify.png"),
-                  SizedBox(
-                    height: 45.h,
-                  ),
+                  SizedBox(height: 45.h),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -67,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             InkWell(
                               onTap: () {},
                               child: Text(
-                                "Sign In (Voter)",
+                                localizations.signInVoter,
                                 style: TextStyle(
                                     fontSize: 20.sp,
                                     letterSpacing: 0.0,
@@ -92,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                         },
                         child: Text(
-                          "Sign In (agent)",
+                          localizations.signInAgent,
                           style: TextStyle(
                             fontSize: 20.sp,
                             letterSpacing: 0.0,
@@ -102,32 +116,31 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
+
                   MyTextFormField(
                     controller: emailController,
-                    labelText: email,
-                    hintText: emailHelperText,
+                    labelText: localizations.cnicNumber,
+                    hintText: localizations.enterCnicHint,
+                    maxLength: 50,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
+                        return localizations.pleaseEnterCnic;
                       }
-                      if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$')
-                          .hasMatch(value)) {
-                        return 'Please enter a valid email address';
-                      }
-
                       return null;
                     },
+                    prefixIcon: Icons.badge,
                   ),
+
                   MyTextFormField(
                     controller: passwordController,
-                    labelText: password,
-                    hintText: passwordHelperText,
+                    labelText: localizations.password,
+                    hintText: localizations.passwordHelperText,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return localizations.pleaseEnterPassword;
                       }
                       if (value.length < 5) {
-                        return 'Password should be greater than 5 character';
+                        return localizations.passwordLengthValidation;
                       }
                       return null;
                     },
@@ -140,9 +153,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     hideText: passwordProvider.isObsecureText,
                   ),
-                  SizedBox(
-                    height: ScreenUtil().setHeight(48),
-                  ),
+
+                  SizedBox(height: ScreenUtil().setHeight(48)),
+
                   Row(
                     children: [
                       TextButton(
@@ -154,25 +167,22 @@ class _LoginScreenState extends State<LoginScreen> {
                               ));
                         },
                         child: Text(
-                          "Don't have an account ?",
+                          localizations.dontHaveAccount,
                           style: TextStyle(
                             fontSize: 16.sp,
                             color: const Color(0x58585880),
                           ),
                         ),
                       ),
-                      SizedBox(
-                        width: 10.w,
-                      ),
+                      SizedBox(width: 10.w),
                       isLoading
                           ? Center(
                               child: SpinKitCircle(
-                                // Using a CircularProgressIndicator for loading indication
                                 color: darkGreenColor,
                               ),
                             )
                           : MyButton(
-                              buttonText: "Sign In",
+                              buttonText: localizations.signIn,
                               buttonFunction: logInFunction,
                             ),
                     ],
@@ -188,24 +198,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void logInFunction() async {
     final authService = Provider.of<AuthServices>(context, listen: false);
+    final localizations = AppLocalizations.of(context);
+
     setState(() {
-      isLoading = true; // Set isLoading to true to show loading indicator
+      isLoading = true;
     });
+
     if (_formKey.currentState!.validate()) {
-      // Perform signup process
       try {
+        final String cnicAsEmail = "${emailController.text.trim()}@votify.pk";
+        print("email $cnicAsEmail");
         await authService.signInWithEmailAndPassword(
-          emailController.text.toString().trim(),
+          cnicAsEmail,
           passwordController.text.toString().trim(),
         );
-        // If signup successful, isLoading will remain true until this point
+
         setState(() {
-          isLoading = false; // Set isLoading to false to hide loading indicator
+          isLoading = false;
         });
-        // Optionally, navigate to another screen upon successful signup
+
         if (!emailController.text.toString().contains("admin")) {
           Navigator.pushReplacement(
-            // ignore: use_build_context_synchronously
             context,
             MaterialPageRoute(
               builder: (context) => const BottomNavBarOfApp(),
@@ -213,7 +226,6 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         } else {
           Navigator.pushReplacement(
-            // ignore: use_build_context_synchronously
             context,
             MaterialPageRoute(
               builder: (context) => const BottomNavBarOfAdmin(),
@@ -221,12 +233,10 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } catch (e) {
-        // Handle signup errors
         setState(() {
-          isLoading = false; // Set isLoading to false to hide loading indicator
+          isLoading = false;
         });
-        // Handle error, you can display an error message or perform other actions
-        print('Signup failed: $e');
+        print('${localizations.signupFailed}: $e');
       }
     } else {
       setState(() {

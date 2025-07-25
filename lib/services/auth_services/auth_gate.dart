@@ -52,7 +52,7 @@ class AuthGateState extends State<AuthGate> {
         } else if (_user != null) {
           if (_isCandidate) {
             return const VoteThroughAgentUser();
-          } else if (_user!.uid == 'SSV3VhaghwNOa8RSJDavNCZmOtW2') {
+          } else if (_user!.uid == 'NN82cEy1gdVOa2PEzaU9dqAqiZg2') {
             return const BottomNavBarOfAdmin();
           } else if (_user!.uid == 'iV3XakRwk1MwAHynwC8DpBirtly1') {
             return const VoteThroughAgentUser();

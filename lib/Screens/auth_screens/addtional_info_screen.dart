@@ -8,11 +8,13 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'package:vote_tracker/Screens/welcome_screen.dart';
 import 'package:vote_tracker/constants.dart';
+import 'package:vote_tracker/providers/localization_provider.dart';
 import 'package:vote_tracker/reusable_widgets/date_of_birth_form_field.dart';
+import 'package:vote_tracker/reusable_widgets/language_toggle.dart';
 import 'package:vote_tracker/reusable_widgets/my_button.dart';
 import 'package:vote_tracker/reusable_widgets/my_form.dart';
-
 import 'package:vote_tracker/services/auth_services/auth_service.dart';
+import 'package:vote_tracker/util/app_localizations.dart';
 
 class AdditionalInformationScreen extends StatefulWidget {
   const AdditionalInformationScreen({super.key});
@@ -59,6 +61,8 @@ class _AdditionalInformationScreenState
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthServices>(context);
+    final localizationProvider = Provider.of<LocalizationProvider>(context);
+    final localizations = AppLocalizations.of(context);
 
     if (selectedProvince != null) {
       provinceAndCountry = ",$selectedProvince,Pakistan";
@@ -66,6 +70,11 @@ class _AdditionalInformationScreenState
       provinceAndCountry = ",Unknown Province, Pakistan"; // Provide a default
     }
     return Scaffold(
+      appBar: AppBar(
+        actions: const [
+          LanguageToggle(),
+        ],
+      ),
       body: Padding(
         padding: REdgeInsets.symmetric(horizontal: 16.0),
         child: Form(
@@ -129,12 +138,12 @@ class _AdditionalInformationScreenState
                   ),
                   MyTextFormField(
                     controller: nameController,
-                    hintText: "Enter your full name",
+                    hintText: localizations.enterFullName,
                     prefixIcon: Icons.person,
-                    labelText: "Full Name",
+                    labelText: localizations.fullName,
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return "Name cannot be null";
+                        return localizations.nameCannotBeNull;
                       }
                       return null;
                     },
@@ -142,16 +151,16 @@ class _AdditionalInformationScreenState
                   MyTextFormField(
                     textInputType: TextInputType.number,
                     controller: numberController,
-                    hintText: "Enter your number",
+                    hintText: localizations.enterMobileNumber,
                     prefixIcon: Icons.numbers,
-                    labelText: "Mobile Number",
+                    labelText: localizations.mobileNumber,
                     validator: (value) {
                       if (value != null &&
                           !RegExp(r'^[0-9]+$').hasMatch(value)) {
-                        return "You cannot enter text here";
+                        return localizations.cannotEnterTextHere;
                       }
                       if (value!.length == 1) {
-                        return "Please enter your number";
+                        return localizations.pleaseEnterNumber;
                       }
                       return null;
                     },
@@ -161,14 +170,14 @@ class _AdditionalInformationScreenState
                     maxLength: 15,
                     textInputType: TextInputType.number,
                     controller: cnicController,
-                    labelText: "CNIC",
+                    labelText: localizations.cnicNumber,
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return "Please enter your cnic number";
+                        return localizations.pleaseEnterCnicNumber;
                       }
                       return null;
                     },
-                    hintText: "Enter your CNIC number without '-'",
+                    hintText: localizations.enterCnicWithoutDash,
                     prefixIcon: Icons.perm_identity,
                     onChanged: (value) {
                       String formattedValue =
@@ -205,7 +214,7 @@ class _AdditionalInformationScreenState
                           ),
                         ),
                         isExpanded: true,
-                        hint: const Text("Province"),
+                        hint: Text(localizations.province),
                         value: selectedProvince,
                         icon: const Icon(Icons.arrow_downward),
                         iconSize: 24,
@@ -227,7 +236,7 @@ class _AdditionalInformationScreenState
                         }).toList(),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please select a province';
+                            return localizations.pleaseSelectProvince;
                           }
                           return null;
                         },
@@ -243,7 +252,7 @@ class _AdditionalInformationScreenState
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15))),
                         isExpanded: true,
-                        hint: const Text("District"),
+                        hint: Text(localizations.district),
                         value: selectedDistrict,
                         icon: const Icon(Icons.arrow_downward),
                         iconSize: 24,
@@ -265,7 +274,7 @@ class _AdditionalInformationScreenState
                               }).toList(),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please select a district';
+                            return localizations.pleaseSelectDistrict;
                           }
                           return null;
                         },
@@ -286,7 +295,7 @@ class _AdditionalInformationScreenState
                           color: darkGreenColor,
                         )
                       : MyButton(
-                          buttonText: "Submit",
+                          buttonText: localizations.submit,
                           buttonFunction: () async {
                             if (_formKey.currentState!.validate()) {
                               addDataToFireStore(context);

@@ -8,6 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:vote_tracker/services/api_services/api_services.dart';
 import 'package:vote_tracker/services/auth_services/auth_service.dart';
+import 'package:vote_tracker/providers/localization_provider.dart';
+import 'package:vote_tracker/util/app_localizations.dart';
+import 'package:vote_tracker/reusable_widgets/language_toggle.dart';
 
 import '../../../services/api_services/ai_api_model.dart';
 
@@ -83,6 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildVideoPlayer(VideoPlayerController controller) {
+    final localizations = AppLocalizations.of(context);
+    
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Container(
@@ -155,23 +160,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
               ),
             ),
-            // Progress Bar
-            // if (controller.value.isInitialized)
-            // VideoProgressIndicator(
-            //   controller,
-            //   allowScrubbing: true,
-            //   colors: const VideoProgressColors(
-            //     playedColor: Colors.red,
-            //     bufferedColor: Colors.grey,
-            //   ),
-            // ),
             Padding(
               padding: REdgeInsets.symmetric(horizontal: 16.0),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Title"),
-                  Text("Subtitle", style: TextStyle(color: Colors.grey))
+                  Text(localizations.title),
+                  Text(localizations.subtitle, style: TextStyle(color: Colors.grey))
                 ],
               ),
             )
@@ -184,14 +179,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final authServices = Provider.of<AuthServices>(context, listen: false);
+    final localizations = AppLocalizations.of(context);
     log("Home Screen");
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Votify"),
+          title: Text(localizations.appTitle),
           centerTitle: true,
-          leading: const Icon(Icons.notifications_none),
           actions: [
+            const LanguageToggle(),
             IconButton(
               onPressed: () {
                 authServices.signOut(context);
@@ -233,8 +229,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     children: [
                       AppBar(
-                        title: const Text(
-                          "Votify",
+                        title: Text(
+                          localizations.appTitle,
                           style: TextStyle(color: Colors.grey),
                         ),
                         centerTitle: true,
@@ -265,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               "assets/aiani.json")),
                                       SizedBox(width: 8.w),
                                       Text(
-                                        "Typing...",
+                                        localizations.typing,
                                         style: TextStyle(
                                             fontSize: 14.sp,
                                             color: Colors.grey),
@@ -362,8 +358,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               Expanded(
                                 child: TextField(
                                   controller: _controller,
-                                  decoration: const InputDecoration(
-                                    hintText: 'How can I help you?',
+                                  decoration: InputDecoration(
+                                    hintText: localizations.howCanIHelp,
                                     border: InputBorder.none,
                                   ),
                                 ),

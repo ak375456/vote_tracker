@@ -1,12 +1,15 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:vote_tracker/firebase_options.dart';
+import 'package:vote_tracker/providers/localization_provider.dart';
 import 'package:vote_tracker/providers/password_provider.dart';
 import 'package:vote_tracker/services/auth_services/auth_gate.dart';
 import 'package:vote_tracker/services/auth_services/auth_service.dart';
 import 'package:vote_tracker/services/candidate_services/candidate_services.dart';
+import 'package:vote_tracker/util/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +23,8 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => ShowPassword()),
         ChangeNotifierProvider(create: (context) => AuthServices()),
-        ChangeNotifierProvider(create: (context) => CandidateServices())
+        ChangeNotifierProvider(create: (context) => CandidateServices()),
+        ChangeNotifierProvider(create: (_) => LocalizationProvider()),
       ],
       child: const MyApp(),
     ),
@@ -32,21 +36,42 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      builder: (context, child) => MaterialApp(
-        theme: ThemeData(
-            scaffoldBackgroundColor: Colors.white,
-            dialogBackgroundColor: Colors.white,
-            appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
-            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-                backgroundColor: Colors.white),
-            bottomSheetTheme:
-                const BottomSheetThemeData(backgroundColor: Colors.white)),
-        debugShowCheckedModeBanner: false,
-        home: const AuthGate(),
-      ),
-      designSize: Size(
-          MediaQuery.sizeOf(context).width, MediaQuery.sizeOf(context).height),
+    return Consumer<LocalizationProvider>(
+      builder: (context, localizationProvider, child) {
+        return ScreenUtilInit(
+          builder: (context, child) => MaterialApp(
+            title: 'Vote Tracker',
+            locale: localizationProvider.locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en', ''),
+              Locale('ur', ''),
+            ],
+            theme: ThemeData(
+              scaffoldBackgroundColor: Colors.white,
+              dialogBackgroundColor: Colors.white,
+              appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
+              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                backgroundColor: Colors.white
+              ),
+              bottomSheetTheme: const BottomSheetThemeData(
+                backgroundColor: Colors.white
+              ),
+            ),
+            debugShowCheckedModeBanner: false,
+            home: const AuthGate(),
+          ),
+          designSize: Size(
+            MediaQuery.sizeOf(context).width, 
+            MediaQuery.sizeOf(context).height
+          ),
+        );
+      },
     );
   }
 }
